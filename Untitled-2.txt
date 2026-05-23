@@ -1,0 +1,1211 @@
+// =====  CONFIG  =====
+const COUNTRIES = [
+  "Portugal","Spain","Ireland","NIreland","UK","Greenland","Iceland",
+  "Norway","Finland","Sweden","Belgium","Luxembourg","Netherlands",
+  "Denmark","Germany","France","Italy","Austria","Czechia","Hungary",
+  "Slovakia","Slovenia","Bosnia","Croatia","Kosovo","Albania",
+  "Montenegro","NorthMacedonia","Greece","Bulgaria","Turkey","Romania",
+  "Moldova","Ukraine","Georgia","Armenia","Lithuania","Latvia",
+  "Estonia","Poland","Cyprus","Switzerland","Serbia","Malta"
+];
+
+// --- Fit settings ---
+const NATURAL_VIEWBOX = { x: 0, y: 0, width: 4504, height: 3744 }; // from your <svg>
+
+// ===== EU GROUP META (code → name/logo) =====
+const EU_GROUPS = {
+  LEFT:  {
+    name:"The Left", logo:"EUGroups/LEFT.png",
+    prior:{ economic:-2.7, social:-2.2, eu:-0.8 }
+  },
+  GREENS:{
+    name:"Greens/EFA", logo:"EUGroups/GreensEFA.png",
+    prior:{ economic:-1.2, social:-2.4, eu: 2.7 }
+  },
+  "S&D":{
+    name:"S&D", logo:"EUGroups/SandD.png",
+    prior:{ economic:-0.7, social:-1.3, eu: 2.3 }
+  },
+  RENEW:{
+    name:"Renew", logo:"EUGroups/RENEW.png",
+    prior:{ economic: 1.1, social:-0.2, eu: 2.6 }
+  },
+  EPP:{
+    name:"EPP", logo:"EUGroups/EPP.png",
+    prior:{ economic: 1.6, social: 1.0, eu: 2.0 }
+  },
+  ECR:{
+    name:"ECR", logo:"EUGroups/ECR.png",
+    prior:{ economic: 0.8, social: 2.2, eu:-1.0 }
+  },
+  PFE:{
+    name:"Patriots for Europe", logo:"EUGroups/PFE.png",
+    prior:{ economic: 0.2, social: 2.5, eu:-2.5 }
+  },
+  ESN:{
+    name:"Non-attached/ESN", logo:"EUGroups/ESN.png",
+    prior:{ economic: 0.8, social:3, eu:-3 }
+  },
+};
+
+
+// ===== PARTY DB (placeholder; add real data per country) =====
+const PARTY_DB = {
+  DEFAULT: [
+  { id:"left",   name:"The Left",          color:"#B51C21", logo:"assets/placeholder.png", group:"LEFT",   econ:-2.7, social:-2.0, eu:-0.8 },
+  { id:"greens", name:"Greens/EFA",        color:"#00B500", logo:"assets/placeholder.png", group:"GREENS", econ:-1.5, social:-1.8, eu: 2.0 },
+  { id:"sd",     name:"S&D",               color:"#D70000", logo:"assets/placeholder.png", group:"S&D",    econ:-1.0, social:-1.2, eu: 2.5 },
+  { id:"renew",  name:"Renew",      color:"#FDD701", logo:"assets/placeholder.png", group:"RENEW",  econ: 1.2, social:-1.0, eu: 2.7 },
+  { id:"epp",    name:"EPP",               color:"#3399FE", logo:"assets/placeholder.png", group:"EPP",    econ: 1.5, social: 1.0, eu: 2.4 },
+  { id:"ecr",    name:"ECR",               color:"#1A6CA8", logo:"assets/placeholder.png", group:"ECR",    econ: 0.8, social: 1.7, eu:-0.5 },
+  { id:"pfe",    name:"PfE", color:"#301C59", logo:"assets/placeholder.png", group:"PFE",  econ: 0.2, social:-2.0, eu:-1.7 },
+  { id:"esn",    name:"ESN",  color:"#001B37", logo:"assets/placeholder.png", group:"ESN",    econ: 2.0, social:-2.7, eu:-2.7 },
+],
+France: [
+    { id:"lfi",   name:"LFI",    color:"#592680", logo:"france/fr_LFI_logo.png",   group:"LEFT",   econ:-2.3, social:-2.3, eu:-1   },
+    { id:"eelv",  name:"EELV",   color:"#53B46F", logo:"france/fr_EELV_logo.png",  group:"GREENS", econ:-1.5, social:-2.5, eu: 2.9 },
+    { id:"pcf",   name:"PCF",    color:"#EC1F2F", logo:"france/fr_PCF_logo.png",   group:"LEFT",   econ:-2.8, social:-1.5, eu:-1.8 },
+    { id:"ps",    name:"PS",     color:"#F80159", logo:"france/fr_PS_logo.png",    group:"S&D",    econ:-1.2, social:-1.7, eu: 2.5 },
+    { id:"re",    name:"RE", color:"#FFD600", logo:"france/fr_RE_logo.png",    group:"RENEW",  econ: 1.5, social:-0.2, eu: 2.5 },
+    { id:"modem", name:"MoDem",  color:"#F1522A", logo:"france/fr_MoDem_logo.png", group:"RENEW",  econ: 0.8, social: 0.5, eu: 2.7 },
+    { id:"hor",   name:"HOR", color:"#0000B9", logo:"france/fr_HOR_logo.png",   group:"RENEW",  econ: 2.0, social: 1.0, eu: 2.2 },
+    { id:"lr",    name:"LR",     color:"#0043B0", logo:"france/fr_LR_logo.png",    group:"EPP",    econ: 1.8, social: 1.7, eu: 0.8 },
+    { id:"dlf",   name:"DLF",    color:"#0265AC", logo:"france/fr_DLF_logo.png",   group:"ECR",    econ: 0.2, social: 2.3, eu:-2.5 },
+    { id:"rn",    name:"RN",     color:"#254671", logo:"france/fr_RN_logo.png",    group:"PFE",    econ: 0.6, social: 2.6, eu:-2.2 },
+    { id:"rec",   name:"REC", color:"#0B0B66", logo:"france/fr_REC_logo.png", group:"ESN",    econ: 0.3, social: 2.9, eu:-2.6 },
+  ],
+Italy: [
+  { id:"fdi",  name:"FdI",  color:"#014171", logo:"italy/it_FdI_logo.png",  group:"ECR",    econ: 1.8, social: 2.4, eu:-0.8 },
+  { id:"pd",   name:"PD",   color:"#E91D24", logo:"italy/it_PD_logo.png",   group:"S&D",    econ:-1.3, social:-1.8, eu: 2.6 },
+  { id:"m5s",  name:"M5S",  color:"#D8C517", logo:"italy/it_M5S_logo.png",  group:"LEFT",   econ:-1.7, social:-1.0, eu:-0.6 },
+  { id:"lega", name:"LEGA", color:"#212882", logo:"italy/it_LEGA_logo.png", group:"PFE",    econ: 1.0, social: 2.2, eu:-1.9 },
+  { id:"fi",   name:"FI",   color:"#0087DC", logo:"italy/it_FI_logo.png",   group:"EPP",    econ: 2.0, social: 1.3, eu: 1.4 },
+  { id:"a",    name:"Azione", color:"#023F92", logo:"italy/it_A_logo.png",   group:"RENEW",  econ: 1.5, social:-0.5, eu: 2.7 },
+  { id:"iv",   name:"IV",   color:"#D42894", logo:"italy/it_IV_logo.png",   group:"RENEW",  econ: 1.5, social:-0.2, eu: 2.8 },
+  { id:"si",   name:"SI",   color:"#EF3E3E", logo:"italy/it_SI_logo.png",   group:"LEFT",   econ:-2.3, social:-2.0, eu: 1.5 },
+  { id:"ev",   name:"EV",   color:"#53B65B", logo:"italy/it_EV_logo.png",   group:"GREENS", econ:-1.5, social:-2.3, eu: 2.4 },
+  { id:"pe",   name:"+Europa", color:"#FFC114", logo:"italy/it_pE_logo.png", group:"RENEW", econ: 1.2, social:-1.5, eu: 3.0 },
+  { id:"nm",   name:"NM", color:"#2149A7", logo:"italy/it_NM_logo.png", group:"EPP", econ: 1.5, social: 1.5, eu: 1.8 },
+],
+Portugal: [
+  { id:"psd",     name:"PSD",     color:"#F08A00", logo:"portugal/pt_PSD_logo.png",     group:"EPP",    econ: 1.2,  social: 0.8,  eu: 2.3 },
+  { id:"cdspp",   name:"CDS-PP",  color:"#0093DD", logo:"portugal/pt_CDS-PP_logo.png",  group:"EPP",    econ: 1.8,  social: 2.0,  eu: 1.0 },
+  { id:"ppm",     name:"PPM",     color:"#2A5392", logo:"portugal/pt_PPM_logo.png",     group:"ECR",    econ: 1.0,  social: 2.3,  eu:-1.0 },
+  { id:"ps",      name:"PS",      color:"#E31E25", logo:"portugal/pt_PS_logo.png",      group:"S&D",    econ:-1.0,  social:-1.5,  eu: 2.0 },
+  { id:"chega",   name:"CHEGA",   color:"#222358", logo:"portugal/pt_CHEGA_logo.png",   group:"PFE",    econ: 1.5,  social: 2.8,  eu:-2.0 },
+  { id:"il",      name:"IL",      color:"#00ADF1", logo:"portugal/pt_IL_logo.png",      group:"RENEW",  econ: 3.0,  social:-0.2,  eu: 2.5 },
+  { id:"livre",   name:"LIVRE",   color:"#81A76C", logo:"portugal/pt_LIVRE_logo.png",   group:"GREENS", econ:-2.0,  social:-2.5,  eu: 3.0 },
+  { id:"pcp",     name:"PCP",     color:"#B20000", logo:"portugal/pt_PCP_logo.png",     group:"LEFT",   econ:-3.0,  social: 1.5,  eu:-2.5 },
+  { id:"be",      name:"BE",      color:"#DB0812", logo:"portugal/pt_BE_logo.png",      group:"LEFT",   econ:-2.2,  social:-2.8,  eu:-0.5 },
+  { id:"pan",     name:"PAN",     color:"#19667E", logo:"portugal/pt_PAN_logo.png",     group:"GREENS", econ:-0.5,  social:-2.0,  eu: 2.0 },
+],
+Spain: [
+  { id:"pp",      name:"PP",       color:"#1E4B8F", logo:"spain/es_PP_logo.png",       group:"EPP",    econ: 1.8,  social: 1.8,  eu: 2.0 },
+  { id:"psoe",    name:"PSOE",     color:"#E20612", logo:"spain/es_PSOE_logo.png",     group:"S&D",    econ:-0.8,  social:-2.0,  eu: 2.5 },
+  { id:"vox",     name:"VOX",      color:"#5AC036", logo:"spain/es_VOX_logo.png",      group:"PFE",    econ: 1.8,  social: 2.7,  eu:-2.1 },
+  { id:"sumar",   name:"SUMAR",    color:"#E61E54", logo:"spain/es_SUMAR_logo.png",    groups:["GREENS","LEFT"], econ:-2.0,  social:-2.5,  eu: 0.8 },
+  { id:"erc",     name:"ERC",      color:"#FEB333", logo:"spain/es_ERC_logo.png",      group:"GREENS", econ:-1.5,  social:-2.0,  eu: 1.0 },
+  { id:"junts",   name:"Junts",    color:"#20C0B2", logo:"spain/es_JUNTS_logo.png",  econ: 0.7,  social: 0.5,  eu: 1.1 },
+  { id:"bildu",   name:"Bildu",    color:"#00B59F", logo:"spain/es_BILDU_logo.png",    group:"LEFT",   econ:-2.5,  social:-2.2,  eu:-0.8 },
+  { id:"pnv",     name:"PNV",      color:"#2A8343", logo:"spain/es_PNV_logo.png",      group:"RENEW",  econ: 0.5,  social: 0.3,  eu: 2.7 },
+  { id:"bng",     name:"BNG",      color:"#2AB4E5", logo:"spain/es_BNG_logo.png",      group:"GREENS", econ:-2.2,  social:-2.3,  eu:-0.7 },
+  { id:"cc",      name:"CC",       color:"#02ABD6", logo:"spain/es_CC_logo.png",       group:"RENEW",  econ: 0.8,  social: 0.5,  eu: 1.5 },
+  { id:"upn",     name:"UPN",      color:"#E1252F", logo:"spain/es_UPN_logo.png",      group:"EPP",    econ: 1.0,  social: 1.7,  eu: 2.0 },
+  { id:"podemos", name:"Podemos",  color:"#B767F4", logo:"spain/es_Podemos_logo.png",  group:"LEFT",   econ:-2.3,  social:-2.7,  eu:-0.8 },
+  { id:"salf",    name:"SALF",     color:"#FFFFFF", logo:"spain/es_SALF_logo.png",    econ: 2.2,  social: 2.5,  eu:-2.0 },
+],
+Ireland: [
+  { id:"ff",     name:"FF",       color:"#01795D", logo:"ireland/ie_FF_logo.png",       group:"RENEW",  econ: 0.7,  social: 0.5,  eu: 2.2 },
+  { id:"fg",     name:"FG",       color:"#007DAC", logo:"ireland/ie_FG_logo.png",       group:"EPP",    econ: 1.8,  social: 0.2,  eu: 2.6 },
+  { id:"sf",     name:"SF",       color:"#218141", logo:"ireland/ie_SF_logo.png",       group:"LEFT",   econ:-2.0,  social:-1.5,  eu:-0.6 },
+  { id:"socdem", name:"SocDem",   color:"#732E8A", logo:"ireland/ie_SocDem_logo.png",   group:"S&D",    econ:-1.5,  social:-2.0,  eu: 1.4 },
+  { id:"labour", name:"Labour",   color:"#EB0000", logo:"ireland/ie_Labour_logo.png",   group:"S&D",    econ:-1.2,  social:-1.8,  eu: 1.8 },
+  { id:"aontu",  name:"Aontú",    color:"#31994E", logo:"ireland/ie_Aontu_logo.png",                     econ:-1.9,  social: 2.2,  eu:-1.4 },
+  { id:"ii",     name:"II",       color:"#3BEE56", logo:"ireland/ie_II_logo.png",       group:"RENEW",  econ: 0.2,  social: 2.4,  eu:-0.7 },
+  { id:"greens", name:"Greens",   color:"#2FB66A", logo:"ireland/ie_Greens_logo.png",   group:"GREENS", econ:-1.0,  social:-2.3,  eu: 2.3 },
+  { id:"pbps",   name:"PBP-S",    color:"#DC0C83", logo:"ireland/ie_PBP-S_logo.png",     group:"LEFT",   econ:-3.0,  social:-2.5,  eu:-1.2 },
+],
+NIreland: [
+  { id:"sf",     name:"SF",     color:"#218141", logo:"nireland/nie_SF_logo.png",     group:"LEFT",   econ:-1.7,  social:-2.0,  eu: 0.7 },
+  { id:"dup",    name:"DUP",    color:"#B51C4B", logo:"nireland/nie_DUP_logo.png",    group:"ECR",    econ: 1.2,  social: 2.6,  eu:-2.4 },
+  { id:"apni",   name:"APNI",   color:"#F2CF33", logo:"nireland/nie_APNI_logo.png",   group:"RENEW",  econ: 0.2,  social:-2.4,  eu: 2.3 },
+  { id:"uup",    name:"UUP",    color:"#00256B", logo:"nireland/nie_UUP_logo.png",    group:"ECR",    econ: 0.8,  social: 1.2,  eu: 1.1 },
+  { id:"sdlp",   name:"SDLP",   color:"#D72B43", logo:"nireland/nie_SDLP_logo.png",   group:"S&D",    econ:-1.4,  social:-1.8,  eu: 1.8 },
+  { id:"tuv",    name:"TUV",    color:"#082B66", logo:"nireland/nie_TUV_logo.png",                      econ: 1.3,  social: 2.8,  eu:-2.8 },
+  { id:"gpni",   name:"GPNI",   color:"#0152A1", logo:"nireland/nie_GPNI_logo.png",   group:"GREENS", econ:-1.6,  social:-2.5,  eu: 2.2 },
+  { id:"aontu",  name:"Aontú",  color:"#31994E", logo:"nireland/nie_Aontu_logo.png",                    econ:-1.0,  social: 1.9,  eu: 0.4 },
+  { id:"pbp",    name:"PBP",    color:"#E71D4F", logo:"nireland/nie_PBP_logo.png",    group:"LEFT",   econ:-3.0,  social:-2.4,  eu:-1.5 },
+],
+UK: [
+  { id:"labour", name:"Labour",  color:"#E11F1C", logo:"uk/uk_Labour_logo.png",  group:"S&D",    econ:-0.5, social:-1.6, eu: 0.4 },
+  { id:"con",    name:"CON",     color:"#00ADEF", logo:"uk/uk_CON_logo.png",     group:"ECR",    econ: 2.0, social: 1.8, eu:-2.1 },
+  { id:"ref",    name:"REFORM",     color:"#1EB8D0", logo:"uk/uk_REFORM_logo.png",                      econ: 2.7, social: 2.6, eu:-2.8 },
+  { id:"libdem", name:"LibDems", color:"#F9A61A", logo:"uk/uk_LibDems_logo.png",  group:"RENEW",  econ:-0.2, social:-2.3, eu: 1.9 },
+  { id:"green",  name:"Greens",   color:"#01A85A", logo:"uk/uk_GREEN_logo.png",    group:"GREENS", econ:-2.3, social:-2.7, eu: 2.3 },
+  { id:"snp",    name:"SNP",     color:"#FFF481", logo:"uk/uk_SNP_logo.png",      group:"GREENS", econ:-1.2, social:-1.7, eu: 2.0 },
+  { id:"pc",     name:"PC",      color:"#005B56", logo:"uk/uk_PC_logo.png",       group:"GREENS", econ:-1.5, social:-1.8, eu: 2.1 },
+],
+Greenland: [
+  { id:"d",  name:"D",  color:"#152D49", logo:"greenland/gl_D_logo.png",  group:"RENEW", econ: 1.8,  social:-0.8,  eu: 1.0 },
+  { id:"n",  name:"N",  color:"#FF6900", logo:"greenland/gl_N_logo.png",                    econ: 0.7,  social: 0.5,  eu:-2.5 },
+  { id:"ia", name:"IA", color:"#B01116", logo:"greenland/gl_IA_logo.png", group:"LEFT",   econ:-1.8,  social:-2.3,  eu:-2.3 },
+  { id:"s",  name:"S",  color:"#FF0909", logo:"greenland/gl_S_logo.png",  group:"S&D",    econ:-0.9,  social:-0.7,  eu:-1.2 },
+  { id:"a",  name:"A",  color:"#004C8D", logo:"greenland/gl_A_logo.png",  group:"RENEW",  econ: 1.7,  social: 1.6,  eu: 1.6 },
+  { id:"q",  name:"Q",  color:"#F7F5B8", logo:"greenland/gl_Q_logo.png",                    econ: 1.2,  social: 1.4,  eu:-2.7 },
+],
+Iceland: [
+  { id:"s",  name:"S",  color:"#ED1400", logo:"iceland/is_S_logo.png",  group:"S&D",    econ:-1.4,  social:-1.6,  eu: 2.3 },
+  { id:"d",  name:"D",  color:"#005082", logo:"iceland/is_D_logo.png",  group:"EPP",    econ: 2.0,  social: 0.8,  eu:-1.6 },
+  { id:"c",  name:"C",  color:"#FF7F00", logo:"iceland/is_C_logo.png",  group:"RENEW",  econ: 1.5,  social:-0.9,  eu: 2.6 },
+  { id:"f",  name:"F",  color:"#FFCA3E", logo:"iceland/is_F_logo.png",  groups:["S&D","RENEW"], econ:-1.8,  social:-0.2,  eu:-0.7 },
+  { id:"m",  name:"M",  color:"#112268", logo:"iceland/is_M_logo.png",  group:"ECR",    econ: 0.4,  social: 1.4,  eu:-1.6 },
+  { id:"b",  name:"B",  color:"#00422A", logo:"iceland/is_B_logo.png",  group:"RENEW",  econ: 0.1,  social: 0.6,  eu:-1.2 },
+  { id:"j",  name:"J",  color:"#EF4839", logo:"iceland/is_J_logo.png",                    econ:-2.4,  social:-2.2,  eu:-0.2 },
+  { id:"p",  name:"P",  color:"#2A0145", logo:"iceland/is_P_logo.png",  group:"GREENS", econ:-0.6,  social:-1.4,  eu: 0.4 },
+  { id:"vg", name:"VG", color:"#FFFFFF", logo:"iceland/is_VG_logo.png", group:"LEFT", econ:-1.7,  social:-1.8,  eu:-0.8 },
+],
+Norway: [
+  { id:"r",   name:"R",   color:"#E90302", logo:"norway/no_R_logo.png",   group:"LEFT",   econ:-3.0,  social:-2.8,  eu:-2.5 },
+  { id:"sv",  name:"SV",  color:"#B5317C", logo:"norway/no_SV_logo.png",  group:"LEFT",   econ:-1.8,  social:-2.3,  eu:-1.8 },
+  { id:"mdg", name:"MDG", color:"#4D7E00", logo:"norway/no_MDG_logo.png", group:"GREENS", econ:-0.8,  social:-2.2,  eu: 1.8 },
+  { id:"ap",  name:"Ap",  color:"#E01220", logo:"norway/no_Ap_logo.png",  group:"S&D",    econ:-0.7,  social:-1.2,  eu: 0.8 },
+  { id:"sp",  name:"Sp",  color:"#00632B", logo:"norway/no_Sp_logo.png",  group:"RENEW",  econ:-0.6,  social: 0.3,  eu:-2.6 },
+  { id:"v",   name:"V",   color:"#006666", logo:"norway/no_V_logo.png",   group:"RENEW",  econ: 1.0,  social:-1.6,  eu: 2.4 },
+  { id:"krf", name:"KrF", color:"#FDEE33", logo:"norway/no_KrF_logo.png", group:"EPP",    econ: 0.3,  social: 2.3,  eu:-0.3 },
+  { id:"frp", name:"FrP", color:"#024E80", logo:"norway/no_FrP_logo.png", group:"ECR",    econ: 2.3,  social: 1.8,  eu:-1.8 },
+  { id:"h",   name:"H",   color:"#0265F0", logo:"norway/no_H_logo.png",   group:"EPP",    econ: 1.4,  social: 0.2,  eu: 1.7 },
+],
+
+Sweden: [
+  { id:"v",  name:"V",  color:"#CA2027", logo:"sweden/se_V_logo.png",  group:"LEFT",   econ:-2.1,  social:-1.9,  eu:-1.3 },
+  { id:"mp", name:"MP", color:"#54A046", logo:"sweden/se_MP_logo.png", group:"GREENS", econ:-0.9,  social:-1.7,  eu: 0.8 },
+  { id:"s",  name:"S",  color:"#ED1B34", logo:"sweden/se_S_logo.png",  group:"S&D",    econ:-1.2,  social:-1.3,  eu: 1.4 },
+  { id:"c",  name:"C",  color:"#124838", logo:"sweden/se_C_logo.png",  group:"RENEW",  econ: 1.2,  social:-0.6,  eu: 1.3 },
+  { id:"l",  name:"L",  color:"#006AB3", logo:"sweden/se_L_logo.png",  group:"RENEW",  econ: 1.7,  social: 0.2,  eu: 2.4 },
+  { id:"m",  name:"M",  color:"#293D9B", logo:"sweden/se_M_logo.png",  group:"EPP",    econ: 2.2,  social: 0.7,  eu: 1.8 },
+  { id:"kd", name:"KD", color:"#005EA1", logo:"sweden/se_KD_logo.png", group:"EPP",    econ: 1.3,  social: 1.8,  eu: 1.0 },
+  { id:"sd", name:"SD", color:"#FEDF09", logo:"sweden/se_SD_logo.png", group:"ECR",    econ:-0.8,  social: 2.2,  eu:-1.2 },
+],
+Finland: [
+  { id:"kok",   name:"KOK",   color:"#003859", logo:"finland/fi_KOK_logo.png",   group:"EPP",    econ: 2.0,  social: 0.3,  eu: 2.4 },
+  { id:"ps",    name:"PS",    color:"#FFDE55", logo:"finland/fi_PS_logo.png",    group:"ECR",    econ: 0.8,  social: 2.6,  eu:-2.0 },
+  { id:"sdp",   name:"SDP",   color:"#F54B4B", logo:"finland/fi_SDP_logo.png",   group:"S&D",    econ:-1.4,  social:-1.5,  eu: 1.9 },
+  { id:"kesk",  name:"Kesk",  color:"#3AAD2E", logo:"finland/fi_Kesk_logo.png",  group:"RENEW",  econ: 0.2,  social: 0.4,  eu: 0.7 },
+  { id:"vas",   name:"VAS",   color:"#F00A64", logo:"finland/fi_VAS_logo.png",   group:"LEFT",   econ:-1.9,  social:-1.8,  eu: 1.2 },
+  { id:"vihr",  name:"VIHR",  color:"#006845", logo:"finland/fi_VIHR_logo.png",  group:"GREENS", econ:-1.2,  social:-2.2,  eu: 2.7 },
+  { id:"sfp",   name:"SFP",   color:"#FFDD93", logo:"finland/fi_SFP_logo.png",   group:"RENEW",  econ: 1.0,  social:-1.7,  eu: 2.4 },
+  { id:"kd",    name:"KD",    color:"#2B67C9", logo:"finland/fi_KD_logo.png",    group:"EPP",    econ: 1.3,  social: 2.0,  eu: 0.5 },
+  { id:"liik",  name:"Liik",  color:"#B42079", logo:"finland/fi_Liik_logo.png",                     econ: 2.2,  social:-0.2,  eu: 0.6 },
+],
+Denmark: [
+  { id:"a",  name:"A",  color:"#F04D46", logo:"denmark/dk_A_logo.png",  group:"S&D",    econ:-0.8,  social: 0.7,  eu: 1.7 },
+  { id:"v",  name:"V",  color:"#002883", logo:"denmark/dk_V_logo.png",  group:"RENEW",  econ: 2.0,  social: 0.5,  eu: 1.9 },
+  { id:"m",  name:"M",  color:"#83298F", logo:"denmark/dk_M_logo.png",  group:"RENEW",  econ: 0.9,  social:-0.1,  eu: 1.8 },
+  { id:"sf", name:"SF", color:"#A20000", logo:"denmark/dk_SF_logo.png", group:"GREENS", econ:-1.6,  social:-1.7,  eu: 1.2 },
+  { id:"ae", name:"Æ",  color:"#BD292E", logo:"denmark/dk_AE_logo.png",  group:"ECR",    econ: 0.9,  social: 2.3,  eu:-0.2 },
+  { id:"i",  name:"I",  color:"#002945", logo:"denmark/dk_I_logo.png",  group:"EPP",    econ: 2.2,  social: 0.3,  eu: 0.3 },
+  { id:"c",  name:"C",  color:"#034536", logo:"denmark/dk_C_logo.png",  group:"EPP",    econ: 1.1,  social: 0.9,  eu: 0.8 },
+  { id:"oe", name:"Ø",  color:"#D0004D", logo:"denmark/dk_Ø_logo.png",  group:"LEFT",   econ:-2.4,  social:-2.3,  eu:-0.4 },
+  { id:"b",  name:"B",  color:"#C4007A", logo:"denmark/dk_B_logo.png",  group:"RENEW",  econ: 0.4,  social:-1.3,  eu: 1.8 },
+  { id:"aa", name:"Å",  color:"#00D463", logo:"denmark/dk_Å_logo.png",  group:"GREENS", econ:-1.1,  social:-2.1,  eu: 1.3 },
+  { id:"o",  name:"O",  color:"#022C70", logo:"denmark/dk_O_logo.png",  group:"PFE",    econ:-0.2,  social: 2.4,  eu:-2.1 },
+],
+Germany: [
+  { id:"cducsu", name:"CDU-CSU", color:"#000000", logo:"germany/de_CDU-CSU_logo.png", group:"EPP",    econ: 1.4,  social: 0.9,  eu: 1.7 },
+  { id:"afd",    name:"AfD",     color:"#009FE1", logo:"germany/de_AfD_logo.png",     group:"ESN",    econ: 0.3,  social: 3.0,  eu:-2.7 },
+  { id:"spd",    name:"SPD",     color:"#E30013", logo:"germany/de_SPD_logo.png",     group:"S&D",    econ:-0.4,  social:-1.6,  eu: 1.9 },
+  { id:"gruene", name:"Grüne",   color:"#26A434", logo:"germany/de_Grüne_logo.png",   group:"GREENS", econ:-1.3,  social:-2.3,  eu: 2.9 },
+  { id:"linke",  name:"Linke",   color:"#BE3075", logo:"germany/de_Linke_logo.png",   group:"LEFT",   econ:-2.7,  social:-2.5,  eu: 0.4 },
+  { id:"bsw",    name:"BSW",     color:"#7A2450", logo:"germany/de_BSW_logo.png",                        econ:-2.4,  social: 1.8,  eu:-1.8 },
+  { id:"fdp",    name:"FDP",     color:"#FFED00", logo:"germany/de_FDP_logo.png",     group:"RENEW",  econ: 2.4,  social:-0.3,  eu: 1.6 },
+],
+Netherlands: [
+  { id:"pvv",    name:"PVV",    color:"#0B2F65", logo:"netherlands/nl_PVV_logo.png",    group:"PFE",    econ: 0.4,  social: 2.4,  eu:-2.6 },
+  { id:"glpvda", name:"GL-PvdA", color:"#FFFFFF", logo:"netherlands/nl_GL-PvdA_logo.png", groups:["S&D","GREENS"], econ:-1.6,  social:-1.8,  eu: 1.2 },
+  { id:"vvd",    name:"VVD",    color:"#0A2CCA", logo:"netherlands/nl_VVD_logo.png",    group:"RENEW",  econ: 1.8,  social: 0.7,  eu: 0.9 },
+  { id:"d66",    name:"D66",    color:"#00AE41", logo:"netherlands/nl_D66_logo.png",    group:"RENEW",  econ: 0.8,  social:-1.2,  eu: 2.6 },
+  { id:"bbb",    name:"BBB",    color:"#93C01F", logo:"netherlands/nl_BBB_logo.png",    group:"EPP",    econ: 0.6,  social: 1.7,  eu:-1.2 },
+  { id:"cda",    name:"CDA",    color:"#2CC84D", logo:"netherlands/nl_CDA_logo.png",    group:"EPP",    econ: 0.5,  social: 1.0,  eu: 0.8 },
+  { id:"sp",     name:"SP",     color:"#ED1C24", logo:"netherlands/nl_SP_logo.png",     group:"LEFT",   econ:-2.1,  social:-0.2,  eu:-0.9 },
+  { id:"denk",   name:"DENK",   color:"#00B7B2", logo:"netherlands/nl_DENK_logo.png",                       econ:-1.4,  social: 0.6,  eu:-0.4 },
+  { id:"pvdd",   name:"PvdD",   color:"#02733F", logo:"netherlands/nl_PvdD_logo.png",   group:"LEFT",   econ:-2.1,  social:-1.4,  eu:-0.7 },
+  { id:"fvd",    name:"FvD",    color:"#A5191C", logo:"netherlands/nl_FvD_logo.png",    group:"ESN",    econ: 1.3,  social: 2.7,  eu:-2.9 },
+  { id:"sgp",    name:"SGP",    color:"#E95D0F", logo:"netherlands/nl_SGP_logo.png",    group:"ECR",    econ: 0.8,  social: 3.0,  eu:-1.0 },
+  { id:"cu",     name:"CU",     color:"#032963", logo:"netherlands/nl_CU_logo.png",     group:"EPP",    econ:-0.4,  social: 1.7,  eu: 0.6 },
+  { id:"volt",   name:"VOLT",   color:"#502379", logo:"netherlands/nl_VOLT_logo.png",   group:"GREENS", econ: 0.4,  social:-1.5,  eu: 3.0 },
+  { id:"ja21",   name:"Ja21",   color:"#242B57", logo:"netherlands/nl_Ja21_logo.png",   group:"ECR",    econ: 1.3,  social: 2.2,  eu:-2.1 },
+],
+Belgium: [
+  { id:"nva",      name:"N-VA",      color:"#FDBB31", logo:"belgium/be_N-VA_logo.png",      group:"ECR",    econ: 1.5,  social: 1.6,  eu:-0.9 },
+  { id:"vb",       name:"VB",        color:"#FFE500", logo:"belgium/be_VB_logo.png",        group:"PFE",    econ: 0.2,  social: 2.6,  eu:-1.9 },
+  { id:"cdv",      name:"CD&V",      color:"#FF6000", logo:"belgium/be_CD&V_logo.png",      group:"EPP",    econ: 0.7,  social: 0.9,  eu: 1.8 },
+  { id:"openvld",  name:"openVLD",   color:"#009DDC", logo:"belgium/be_openVLD_logo.png",   group:"RENEW",  econ: 2.0,  social:-0.2,  eu: 2.4 },
+  { id:"vooruit",  name:"Vooruit",   color:"#FF2A00", logo:"belgium/be_Vooruit_logo.png",   group:"S&D",    econ:-1.0,  social:-1.4,  eu: 1.8 },
+  { id:"groen",    name:"Groen",     color:"#02AD5B", logo:"belgium/be_Groen_logo.png",     group:"GREENS", econ:-1.6,  social:-2.4,  eu: 2.2 },
+  { id:"ptb",      name:"PTB-PVDA",  color:"#EF4135", logo:"belgium/be_PTB-PVDA_logo.png",  group:"LEFT",   econ:-2.8,  social:-2.0,  eu:-1.6 },
+  { id:"ps",       name:"PS",        color:"#FF0000", logo:"belgium/be_PS_logo.png",        group:"S&D",    econ:-1.2,  social:-1.5,  eu: 2.1 },
+  { id:"mr",       name:"MR",        color:"#002BFF", logo:"belgium/be_MR_logo.png",        group:"RENEW",  econ: 1.6,  social: 0.2,  eu: 2.2 },
+  { id:"ecolo",    name:"ECOLO",     color:"#5AAD39", logo:"belgium/be_ECOLO_logo.png",     group:"GREENS", econ:-1.5,  social:-2.5,  eu: 2.0 },
+  { id:"le",       name:"LE",        color:"#00E6D2", logo:"belgium/be_LE_logo.png",        group:"RENEW",  econ: 0.6,  social:-0.4,  eu: 2.3 },
+],
+Luxembourg: [
+  { id:"csv",      name:"CSV",      color:"#FFCC00", logo:"luxembourg/lu_CSV_logo.png",      group:"EPP",    econ: 1.4,  social: 1.3,  eu: 2.6 },
+  { id:"lsap",     name:"LSAP",     color:"#F00035", logo:"luxembourg/lu_LSAP_logo.png",     group:"S&D",    econ:-1.3,  social:-1.6,  eu: 2.8 },
+  { id:"dp",       name:"DP",       color:"#002C51", logo:"luxembourg/lu_DP_logo.png",       group:"RENEW",  econ: 0.7,  social: 0.8,  eu: 2.7 },
+  { id:"deigreng", name:"Dei Greng", color:"#39B54A", logo:"luxembourg/lu_DeiGreng_logo.png", group:"GREENS", econ:-1.7,  social:-2.2,  eu: 1.8 },
+  { id:"adr",      name:"ADR",      color:"#D20823", logo:"luxembourg/lu_ADR_logo.png",      group:"ECR",    econ: 1.0,  social: 2.0,  eu:-0.7 },
+  { id:"pirates",  name:"Pirates",  color:"#993399", logo:"luxembourg/lu_Pirates_logo.png",  group:"GREENS", econ: 0.0,  social:-2.0,  eu: 1.7 },
+  { id:"deilenk",  name:"Dei Lenk", color:"#8F0109", logo:"luxembourg/lu_DeiLenk_logo.png",  group:"LEFT",   econ:-2.5,  social:-2.2,  eu: 0.7 },
+  { id:"kpl",      name:"KPL",      color:"#FF0000", logo:"luxembourg/lu_KPL_logo.png",      group:"LEFT",   econ:-3.0,  social:-1.6,  eu:-2.8 },
+  { id:"dk",       name:"DK",       color:"#4DA4DB", logo:"luxembourg/lu_DK_logo.png",                         econ: 1.5,  social: 2.2,  eu:-0.8 },
+  { id:"volt",     name:"Volt",     color:"#502379", logo:"luxembourg/lu_Volt_logo.png",     group:"GREENS", econ:-0.2,  social:-2.3,  eu: 3.0 },
+],
+Malta: [
+  { id:"pl",   name:"PL",   color:"#EE3224", logo:"malta/mt_PL_logo.png",   group:"S&D",    econ:-0.7,  social:-1.3,  eu: 1.5 },
+  { id:"pn",   name:"PN",   color:"#2A2461", logo:"malta/mt_PN_logo.png",   group:"EPP",    econ: 1.1,  social: 0.7,  eu: 2.1 },
+  { id:"adpd", name:"ADPD", color:"#20AA63", logo:"malta/mt_ADPD_logo.png", group:"GREENS", econ:-1.5,  social:-2.3,  eu: 2.5 },
+  { id:"m",    name:"M",    color:"#149A8D", logo:"malta/mt_M_logo.png",    group:"RENEW",  econ:-0.6,  social:-1.5,  eu: 2.4 },
+],
+
+Switzerland: [
+  { id:"svp",   name:"SVP",   color:"#03A04F", logo:"switzerland/ch_SVP_logo.png",   groups:["RENEW","ECR"],    econ: 1.4,  social: 2.6,  eu:-2.7 },
+  { id:"sp",    name:"SP",    color:"#E4002B", logo:"switzerland/ch_SP_logo.png",    group:"S&D",    econ:-2.1,  social:-2.3,  eu: 2.1 },
+  { id:"fdp",   name:"FDP",   color:"#104FA0", logo:"switzerland/ch_FDP_logo.png",   group:"RENEW",  econ: 2.2,  social: 0.8,  eu: 0.4 },
+  { id:"dm",    name:"DM",    color:"#F29206", logo:"switzerland/ch_DM_logo.png",    group:"EPP",    econ: 0.9,  social: 1.5,  eu: 0.8 },
+  { id:"gruene",name:"Grüne", color:"#90B13A", logo:"switzerland/ch_Grüne_logo.png", group:"GREENS", econ:-1.8,  social:-2.4,  eu: 1.4 },
+  { id:"glp",   name:"GLP",   color:"#96C020", logo:"switzerland/ch_GLP_logo.png",   group:"RENEW",  econ: 0.7,  social:-1.9,  eu: 1.9 },
+  { id:"evp",   name:"EVP",   color:"#EFDA18", logo:"switzerland/ch_EVP_logo.png",   group:"ECR",    econ:-0.4,  social: 1.7,  eu: 0.3 },
+  { id:"edu",   name:"EDU",   color:"#E60005", logo:"switzerland/ch_EDU_logo.png",   group:"ECR",    econ: 0.3,  social: 2.3,  eu:-1.9 },
+],
+Estonia: [
+  { id:"re",     name:"RE",     color:"#FFE200", logo:"estonia/ee_RE_logo.png",     group:"RENEW",  econ: 2.0,  social:-0.8,  eu: 2.5 },
+  { id:"ekre",   name:"EKRE",   color:"#0177BC", logo:"estonia/ee_EKRE_logo.png",   group:"PFE",    econ: 1.1,  social: 2.6,  eu:-2.2 },
+  { id:"kesk",   name:"KESK",   color:"#007557", logo:"estonia/ee_KESK_logo.png",   groups:["RENEW","ECR"],    econ:-0.4,  social: 1.0,  eu: 0.6 },
+  { id:"e200",   name:"E200",   color:"#2F2A95", logo:"estonia/ee_E200_logo.png",   group:"EPP",    econ: 1.2,  social:-1.5,  eu: 1.9 },
+  { id:"sde",    name:"SDE",    color:"#E10600", logo:"estonia/ee_SDE_logo.png",    group:"S&D",    econ:-0.9,  social:-2.0,  eu: 2.4 },
+  { id:"isamaa", name:"Isamaa", color:"#0599E1", logo:"estonia/ee_Isamaa_logo.png", group:"EPP",    econ: 1.5,  social: 1.2,  eu: 0.9 },
+  { id:"vl",     name:"VL",     color:"#78003C", logo:"estonia/ee_VL_logo.png",     group:"LEFT",   econ:-2.0,  social:-1.3,  eu: 1.3 },
+  { id:"koos",   name:"Koos",   color:"#005BAA", logo:"estonia/ee_Koos_logo.png",                       econ:-0.5,  social: 2.5,  eu:-2.3 },
+  { id:"parem",  name:"Parem",  color:"#FA6100", logo:"estonia/ee_Parem_logo.png",  group:"EPP",    econ: 2.2,  social: 0.6,  eu: 1.8 },
+  { id:"eer",    name:"EER",    color:"#A1C53F", logo:"estonia/ee_EER_logo.png",    group:"GREENS", econ:-1.9,  social:-1.7,  eu: 2.3 },
+],
+Latvia: [
+  { id:"jv",   name:"JV",   color:"#6AB647", logo:"latvia/lv_JV_logo.png",   group:"EPP",    econ: 1.3,  social: 0.3,  eu: 2.2 },
+  { id:"zzs",  name:"ZZS",  color:"#005B24", logo:"latvia/lv_ZZS_logo.png",  groups:["RENEW","S&D"], econ:-1.1,  social: 0.8,  eu:-0.6 },
+  { id:"as",   name:"AS",   color:"#FFAC01", logo:"latvia/lv_AS_logo.png",   group:"EPP",    econ: 0.4,  social: 0.9,  eu: 1.1 },
+  { id:"na",   name:"NA",   color:"#952131", logo:"latvia/lv_NA_logo.png",   group:"ECR",    econ: 0.7,  social: 2.0,  eu:-0.8 },
+  { id:"st",   name:"ST!",  color:"#F77D02", logo:"latvia/lv_ST!_logo.png",                    econ:-0.5,  social: 0.3,  eu:-1.6 },
+  { id:"lpv",  name:"LPV",  color:"#9E3039", logo:"latvia/lv_LPV_logo.png",  group:"PFE",    econ: 1.4,  social: 2.0,  eu:-1.8 },
+  { id:"pro",  name:"PRO",  color:"#F93B1D", logo:"latvia/lv_PRO_logo.png",  group:"GREENS", econ:-1.6,  social:-2.5,  eu: 2.7 },
+  { id:"par",  name:"Par!", color:"#FFF200", logo:"latvia/lv_Par!_logo.png", group:"RENEW",  econ: 0.6,  social:-1.7,  eu: 2.4 },
+  { id:"la",   name:"LA",   color:"#FFDD00", logo:"latvia/lv_LA_logo.png",   group:"RENEW",  econ: 1.4,  social:-1.2,  eu: 2.5 },
+  { id:"s",    name:"S",    color:"#EC1B24", logo:"latvia/lv_S_logo.png",    group:"S&D",    econ:-1.4,  social: 0.8,  eu: 0.2 },
+  { id:"p21",  name:"P21",  color:"#1AA190", logo:"latvia/lv_P21_logo.png",                    econ: 0.6,  social: 2.0,  eu:-1.1 },
+  { id:"lks",  name:"LKS",  color:"#3760A2", logo:"latvia/lv_LKS_logo.png",                    econ:-0.8,  social: 0.6,  eu:-2.6 },
+  { id:"sv",   name:"SV",   color:"#615CB3", logo:"latvia/lv_SV_logo.png",   group:"ECR",    econ:-0.4,  social: 1.8,  eu: 0.2 },
+],
+
+Lithuania: [
+  { id:"lsdp",      name:"LSDP",      color:"#E20514", logo:"lithuania/lt_LSDP_logo.png",      group:"S&D",    econ:-0.9,  social:-0.5,  eu: 2.2 },
+  { id:"tslkd",     name:"TS-LKD",    color:"#3359A3", logo:"lithuania/lt_TS-LKD_logo.png",    group:"EPP",    econ: 1.0,  social: 0.7,  eu: 2.3 },
+  { id:"na",        name:"NA",        color:"#EB612B", logo:"lithuania/lt_NA_logo.png",        group:"S&D",    econ:-0.6,  social: 1.5,  eu:-0.3 },
+  { id:"dsvl",      name:"DSVL",      color:"#0A1172", logo:"lithuania/lt_DSVL_logo.png",      group:"GREENS", econ:-0.6,  social: 0.6,  eu: 1.8 },
+  { id:"ls",        name:"LS",        color:"#FF9300", logo:"lithuania/lt_LS_logo.png",        group:"RENEW",  econ: 1.0,  social:-1.0,  eu: 2.3 },
+  { id:"lvzs",      name:"LVZS",      color:"#00A651", logo:"lithuania/lt_LVZS_logo.png",      group:"ECR",    econ:-0.8,  social: 0.9,  eu: 0.3 },
+  { id:"lp",        name:"LP",        color:"#FF0C6C", logo:"lithuania/lt_LP_logo.png",        group:"RENEW",  econ: 1.1,  social:-1.5,  eu: 2.5 },
+  { id:"llrakss",   name:"LLRA-KSS",  color:"#771725", logo:"lithuania/lt_LLRA-KSS_logo.png",  group:"ECR",    econ:-0.8,  social: 1.8,  eu:-0.6 },
+  { id:"ns",        name:"NS",        color:"#B91F25", logo:"lithuania/lt_NS_logo.png",        group:"ECR",    econ:-1.2,  social: 2.7,  eu:-1.3 },
+  { id:"dp",        name:"DP",        color:"#1D578C", logo:"lithuania/lt_DP_logo.png",                           econ:-0.4,  social: 0.5,  eu: 0.5 },
+  { id:"lzp",       name:"LZP",       color:"#93C93C", logo:"lithuania/lt_LZP_logo.png",       group:"GREENS", econ:-0.5,  social:-1.3,  eu: 1.9 },
+  { id:"tts",       name:"TTS",       color:"#013861", logo:"lithuania/lt_TTS_logo.png",       group:"ESN",    econ:-0.6,  social: 2.4,  eu:-1.8 },
+  { id:"cds",       name:"CDS",       color:"#294696", logo:"lithuania/lt_CDS_logo.png",       group:"RENEW",  econ: 1.2,  social: 0.6,  eu: 0.5 },
+],
+
+Poland: [
+  { id:"pis",     name:"PiS",     color:"#012B7F", logo:"poland/pl_PiS_logo.png",     group:"ECR",    econ:-1.4,  social: 2.5,  eu:-1.3 },
+  { id:"po",      name:"PO",      color:"#01529D", logo:"poland/pl_PO_logo.png",      group:"EPP",    econ: 1.2,  social:-0.5,  eu: 2.2 },
+  { id:"pl2050",  name:"PL2050",  color:"#FAC300", logo:"poland/pl_PL2050_logo.png",  group:"RENEW",  econ: 0.8,  social: 0.5,  eu: 1.5 },
+  { id:"psl",     name:"PSL",     color:"#2ED397", logo:"poland/pl_PSL_logo.png",     group:"EPP",    econ: 1.0,  social: 1.3,  eu: 1.0 },
+  { id:"lewica",  name:"Lewica",  color:"#EB2A48", logo:"poland/pl_Lewica_logo.png",  group:"S&D",    econ:-1.6,  social:-1.3,  eu: 2.4 },
+  { id:"razem",   name:"Razem",   color:"#870F57", logo:"poland/pl_Razem_logo.png",   group:"LEFT",   econ:-1.9,  social:-1.7,  eu: 2.0 },
+  { id:"nn",      name:"NN",      color:"#173358", logo:"poland/pl_NN_logo.png",      group:"ESN",    econ: 2.7,  social: 2.4,  eu:-2.5 },
+  { id:"rn",      name:"RN",      color:"#C11F20", logo:"poland/pl_RN_logo.png",      group:"PFE",    econ: 1.5,  social: 3.0,  eu:-2.7 },
+  { id:"kkp",     name:"KKP",     color:"#A27819", logo:"poland/pl_KKP_logo.png",                        econ: 0.5,  social: 3.0,  eu:-2.9 },
+  { id:"dotn",    name:".N",      color:"#005CA9", logo:"poland/pl_.N_logo.png",      group:"RENEW",  econ: 1.6,  social:-1.0,  eu: 2.4 },
+  { id:"z",       name:"Z",       color:"#026C55", logo:"poland/pl_Z_logo.png",       group:"GREENS", econ:-0.9,  social:-2.0,  eu: 2.3 },
+  { id:"ipl",     name:"iPL",     color:"#EF2837", logo:"poland/pl_iPL_logo.png",     group:"EPP",    econ:-0.6,  social:-1.2,  eu: 2.0 },
+],
+Czechia: [
+  { id:"ods",       name:"ODS",       color:"#164194", logo:"czechia/cz_ODS_logo.png",       group:"ECR",    econ: 1.8,  social: 1.1,  eu:-0.9 },
+  { id:"kdu",       name:"KDU-ČSL",   color:"#FFCB04", logo:"czechia/cz_KDU-CSL_logo.png",   group:"EPP",    econ: 0.6,  social: 1.4,  eu: 1.8 },
+  { id:"top09",     name:"TOP-09",    color:"#005490", logo:"czechia/cz_TOP-09_logo.png",    group:"EPP",    econ: 2.0,  social:-0.5,  eu: 2.1 },
+  { id:"ano",       name:"ANO",       color:"#282661", logo:"czechia/cz_ANO_logo.png",       group:"PFE",    econ: 0.5,  social: 1.6,  eu:-2.0 },
+  { id:"stan",      name:"STAN",      color:"#CD0F67", logo:"czechia/cz_STAN_logo.png",      group:"EPP",    econ: 1.0,  social:-1.0,  eu: 2.4 },
+  { id:"pirates",   name:"Pirates",   color:"#000000", logo:"czechia/cz_Pirates_logo.png",   group:"GREENS", econ:-0.8,  social:-2.3,  eu: 1.9 },
+  { id:"zeleni",    name:"Zeleni",    color:"#00AD43", logo:"czechia/cz_Zeleni_logo.png",    group:"GREENS", econ:-1.3,  social:-2.3,  eu: 2.0 },
+  { id:"spd",       name:"SPD",       color:"#FFFFFF", logo:"czechia/cz_SPD_logo.png",       group:"ESN",    econ: 0.6,  social: 3.0,  eu:-3.0 },
+  { id:"prisaha",   name:"Prisaha",   color:"#0033FF", logo:"czechia/cz_Prisaha_logo.png",   group:"PFE",    econ: 0.5,  social: 1.5,  eu:-1.8 },
+  { id:"auto",      name:"AUTO",      color:"#009EE3", logo:"czechia/cz_AUTO_logo.png",      group:"PFE",    econ: 1.7,  social: 2.5,  eu:-2.7 },
+  { id:"stacilo",   name:"Stacilo!",  color:"#C4161C", logo:"czechia/cz_Stacilo!_logo.png",                     econ:-2.4,  social: 2.0,  eu:-2.8 },
+],
+
+Austria: [
+  { id:"fpo",     name:"FPÖ",     color:"#005EA8", logo:"austria/at_FPO_logo.png",     group:"PFE",    econ: 0.3,  social: 2.6,  eu:-2.0 },
+  { id:"ovp",     name:"ÖVP",     color:"#68C5D2", logo:"austria/at_OVP_logo.png",     group:"EPP",    econ: 1.4,  social: 1.0,  eu: 1.2 },
+  { id:"spo",     name:"SPÖ",     color:"#E20715", logo:"austria/at_SPO_logo.png",     group:"S&D",    econ:-1.4,  social:-1.0,  eu: 1.6 },
+  { id:"neos",    name:"NEOS",    color:"#CA1C67", logo:"austria/at_NEOS_logo.png",    group:"RENEW",  econ: 1.8,  social:-1.8,  eu: 2.6 },
+  { id:"grune",   name:"Grüne",   color:"#68AF21", logo:"austria/at_Grune_logo.png",   group:"GREENS", econ:-1.8,  social:-2.6,  eu: 2.3 },
+  { id:"kpo",     name:"KPÖ",     color:"#AC1215", logo:"austria/at_KPO_logo.png",     group:"LEFT",   econ:-2.9,  social:-2.4,  eu:-2.2 },
+  { id:"bier",    name:"BIER",    color:"#FFED00", logo:"austria/at_BIER_logo.png",                      econ:-0.8,  social:-1.8,  eu: 1.0 },
+],
+Slovakia: [
+  { id:"smer",       name:"SMER",       color:"#D72727", logo:"slovakia/sk_SMER_logo.png",                       econ:-1.8,  social: 2.4,  eu:-1.4 },
+  { id:"ps",         name:"PS",         color:"#00BCFF", logo:"slovakia/sk_PS_logo.png",        group:"RENEW",   econ: 1.1,  social:-2.2,  eu: 2.6 },
+  { id:"hlas",       name:"Hlas",       color:"#830F38", logo:"slovakia/sk_Hlas_logo.png",                       econ:-1.0,  social: 1.2,  eu: 0.6 },
+  { id:"olano",      name:"OĽaNO",      color:"#485156", logo:"slovakia/sk_OL'aNO_logo.png",     group:"EPP",     econ: 0.6,  social: 2.2,  eu: 1.2 },
+  { id:"kdh",        name:"KDH",        color:"#1D3D6F", logo:"slovakia/sk_KDH_logo.png",       group:"EPP",     econ: 1.2,  social: 2.3,  eu: 1.8 },
+  { id:"sas",        name:"SaS",        color:"#9BC31C", logo:"slovakia/sk_SaS_logo.png",       group:"ECR",     econ: 2.6,  social:-1.8,  eu: 0.3 },
+  { id:"sns",        name:"SNS",        color:"#252E70", logo:"slovakia/sk_SNS_logo.png",       group:"PFE",     econ:-0.4,  social: 2.7,  eu:-2.2 },
+  { id:"republika",  name:"Republika",  color:"#FFFFFF", logo:"slovakia/sk_Republika_logo.png",  group:"ESN",     econ: 0.3,  social: 3.0,  eu:-2.9 },
+  { id:"ms",         name:"MS",         color:"#FFFFFF", logo:"slovakia/sk_MS_logo.png",        group:"EPP",     econ: 0.8,  social: 1.2,  eu: 1.1 },
+  { id:"demokrati",  name:"Demokrati",  color:"#4F178F", logo:"slovakia/sk_Demokrati_logo.png",  group:"EPP",     econ: 0.6,  social: 0.2,  eu: 2.1 },
+  { id:"sr",         name:"SR",         color:"#424953", logo:"slovakia/sk_SR_logo.png",        group:"PFE",     econ:-0.2,  social: 2.2,  eu:-2.0 },
+  { id:"lsns",       name:"ĽSNS",       color:"#2B7C2E", logo:"slovakia/sk_L'SNS_logo.png",                        econ:-2.8,  social: 3.0,  eu:-3.0 },
+],
+Hungary: [
+  { id:"fidesz",  name:"Fidesz",  color:"#FF6A00", logo:"hungary/hu_Fidesz_logo.png",  group:"PFE",     econ:-1.5,  social: 2.5,  eu:-2.5 },
+  { id:"dk",       name:"DK",       color:"#1565AF", logo:"hungary/hu_DK_logo.png",       group:"S&D",     econ:-1.5,  social:-2.0,  eu: 3.0 },
+  { id:"mszp",     name:"MSZP",     color:"#D81C2D", logo:"hungary/hu_MSZP_logo.png",     group:"S&D",     econ:-1.0,  social:-1.5,  eu: 2.0 },
+  { id:"greens",   name:"Greens",   color:"#39B54A", logo:"hungary/hu_Greens_logo.png",   group:"GREENS",  econ:-1.8,  social:-2.5,  eu: 2.2 },
+  { id:"mm",       name:"MM",       color:"#8E6FCE", logo:"hungary/hu_MM_logo.png",       group:"RENEW",   econ:-0.2,  social:-2.0,  eu: 2.0 },
+  { id:"jobbik",   name:"Jobbik",   color:"#047B60", logo:"hungary/hu_Jobbik_logo.png",                     econ:-0.5,  social: 2.0,  eu:-0.5 },
+  { id:"lmp",      name:"LMP",      color:"#54B586", logo:"hungary/hu_LMP_logo.png",      group:"GREENS",  econ:-0.5,  social:-1.0,  eu: 0.5 },
+  { id:"mmn",      name:"MMN",      color:"#001166", logo:"hungary/hu_MMM_logo.png",      group:"EPP",     econ: 1.0,  social: 1.5,  eu: 1.5 },
+  { id:"mh",       name:"MH",       color:"#688D1B", logo:"hungary/hu_MH_logo.png",       group:"ESN",     econ: 0.0,  social: 2.9,  eu:-2.8 },
+  { id:"mkkp",     name:"MKKP",     color:"#808080", logo:"hungary/hu_MKKP_logo.png",     group:"GREENS",  econ:-0.7,  social:-2.2,  eu: 1.8 },
+  { id:"tisza",    name:"TISZA",    color:"#ED4551", logo:"hungary/hu_TISZA_logo.png",    group:"EPP",     econ: 0.2,  social: 0.6,  eu: 1.5 },
+],
+Slovenia: [
+  { id:"gs",     name:"GS",     color:"#0063A6", logo:"slovenia/si_GS_logo.png",     group:"RENEW",   econ:-0.4,  social:-2.0,  eu: 2.5 },
+  { id:"sds",    name:"SDS",    color:"#FCDC00", logo:"slovenia/si_SDS_logo.png",    group:"EPP",     econ: 2.0,  social: 2.5,  eu: 0.5 },
+  { id:"nsi",    name:"N.Si",   color:"#009AC7", logo:"slovenia/si_N.Si_logo.png",    group:"EPP",     econ: 1.5,  social: 2.0,  eu: 1.9 },
+  { id:"sd",     name:"SD",     color:"#ED1D24", logo:"slovenia/si_SD_logo.png",     group:"S&D",     econ:-1.3,  social:-2.0,  eu: 2.2 },
+  { id:"levica", name:"Levica", color:"#E7302A", logo:"slovenia/si_Levica_logo.png", group:"LEFT",    econ:-2.4,  social:-2.6,  eu:-0.2 },
+  { id:"sls",    name:"SLS",    color:"#81BE5F", logo:"slovenia/si_SLS_logo.png",    group:"EPP",     econ: 0.8,  social: 1.8,  eu: 0.6 },
+  { id:"zs",     name:"ZS",     color:"#008000", logo:"slovenia/si_ZS_logo.png",     group:"RENEW",   econ: 0.3,  social: 1.2,  eu: 0.2 },
+  { id:"r",      name:"R.",     color:"#7C5199", logo:"slovenia/si_R._logo.png",                       econ: 1.6,  social: 1.1,  eu:-1.2 },
+  { id:"pirate", name:"PIRATE", color:"#F68F36", logo:"slovenia/si_PIRATE_logo.png", group:"GREENS",  econ:-0.6,  social:-2.4,  eu: 2.1 },
+  { id:"sns",    name:"SNS",    color:"#FEE520", logo:"slovenia/si_SNS_logo.png",    group:"PFE",     econ:-0.9,  social: 2.8,  eu:-1.9 },
+  { id:"vesna",  name:"VESNA",  color:"#00964F", logo:"slovenia/si_VESNA_logo.png",  group:"GREENS",  econ:-1.8,  social:-2.2,  eu: 2.3 },
+  { id:"d",      name:"D.",     color:"#09115D", logo:"slovenia/si_D._logo.png",      group:"EPP",     econ: 0.5,  social: 0.8,  eu: 1.4 },
+],
+
+Croatia: [
+  { id:"hdz",     name:"HDZ",     color:"#295BA5", logo:"croatia/hr_HDZ_logo.png",     group:"EPP",     econ: 0.9,  social: 1.2,  eu: 2.4 },
+  { id:"sdp",     name:"SDP",     color:"#ED1C24", logo:"croatia/hr_SDP_logo.png",     group:"S&D",     econ:-1.1,  social:-1.4,  eu: 2.5 },
+  { id:"dp",      name:"DP",      color:"#005BAA", logo:"croatia/hr_DP_logo.png",      group:"ECR",     econ: 1.4,  social: 2.3,  eu:-0.8 },
+  { id:"domino",  name:"DOMiNO",  color:"#000000", logo:"croatia/hr_DOMiNO_logo.png",  group:"ECR",     econ: 1.6,  social: 2.4,  eu:-1.2 },
+  { id:"pip",     name:"PiP",     color:"#203D71", logo:"croatia/hr_PiP_logo.png",                       econ: 1.2,  social: 2.1,  eu:-2.2 },
+  { id:"mozemo",  name:"MOŽEMO",  color:"#C3D746", logo:"croatia/hr_MOZEMO_logo.png",  group:"GREENS",  econ:-2.4,  social:-2.2,  eu: 2.1 },
+  { id:"most",    name:"MOST",    color:"#1E5797", logo:"croatia/hr_MOST_logo.png",    group:"ECR",     econ: 0.4,  social: 1.7,  eu:-0.4 },
+  { id:"hs",      name:"HS",      color:"#004F9F", logo:"croatia/hr_HS_logo.png",      group:"ECR",     econ: 0.8,  social: 2.3,  eu:-1.7 },
+  { id:"fokus",   name:"FOKUS",   color:"#04AACA", logo:"croatia/hr_FOKUS_logo.png",   group:"RENEW",   econ: 1.7,  social:-0.2,  eu: 1.6 },
+  { id:"ids",     name:"IDS",     color:"#13A438", logo:"croatia/hr_IDS_logo.png",     group:"RENEW",   econ:-0.7,  social:-1.5,  eu: 2.4 },
+  { id:"rf",      name:"RF",      color:"#C8282A", logo:"croatia/hr_RF_logo.png",      group:"LEFT",    econ:-2.6,  social:-2.5,  eu: 1.2 },
+  { id:"centar",  name:"CENTAR",  color:"#C81B77", logo:"croatia/hr_CENTAR_logo.png",  group:"RENEW",   econ: 0.9,  social:-1.5,  eu: 1.8 },
+  { id:"hss",     name:"HSS",     color:"#0AAF4C", logo:"croatia/hr_HSS_logo.png",                      econ:-0.8,  social:-0.3,  eu: 1.3 },
+  { id:"hsu",     name:"HSU",     color:"#2E3192", logo:"croatia/hr_HSU_logo.png",                      econ:-1.0,  social: 0.3,  eu: 1.2 },
+  { id:"hns",     name:"HNS",     color:"#F29629", logo:"croatia/hr_HNS_logo.png",     group:"RENEW",   econ: 1.2,  social:-1.3,  eu: 2.2 },
+],
+Bosnia: [
+  { id:"sda",     name:"SDA",     color:"#00A859", logo:"BiH/ba_SDA_logo.png",     group:"EPP",     econ: 0.8,  social: 1.8,  eu: 1.8 },
+  { id:"snsd",    name:"SNSD",    color:"#C40000", logo:"BiH/ba_SNSD_logo.png",                      econ: 0.4,  social: 2.6,  eu:-2.2 },
+  { id:"sdp",     name:"SDP",     color:"#FF0000", logo:"BiH/ba_SDP_logo.png",     group:"S&D",     econ:-1.2,  social:-1.6,  eu: 2.2 },
+  { id:"hdz",     name:"HDZ",     color:"#003B87", logo:"BiH/ba_HDZ_logo.png",     group:"EPP",     econ: 1.2,  social: 1.7,  eu: 2.2 },
+  { id:"df",      name:"DF",      color:"#F16822", logo:"BiH/ba_DF_logo.png",                       econ:-0.8,  social:-1.2,  eu: 2.3 },
+  { id:"pdp",     name:"PDP",     color:"#193D71", logo:"BiH/ba_PDP_logo.png",     group:"EPP",     econ: 1.2,  social: 0.8,  eu: 1.5 },
+  { id:"sbb",     name:"SBB",     color:"#213282", logo:"BiH/ba_SBB_logo.png",     group:"EPP",     econ: 1.4,  social: 0.6,  eu: 1.8 },
+  { id:"sds",     name:"SDS",     color:"#2957A4", logo:"BiH/ba_SDS_logo.png",     group:"EPP",     econ:-0.4,  social: 2.8,  eu:-2.3 },
+  { id:"nip",     name:"NiP",     color:"#142C4C", logo:"BiH/ba_NiP_logo.png",                       econ: 0.6,  social: 1.5,  eu: 1.7 },
+  { id:"nes",     name:"NES",     color:"#8DC001", logo:"BiH/ba_NES_logo.png",                       econ: 0.4,  social: 1.6,  eu: 1.5 },
+  { id:"zng",     name:"ZNG",     color:"#B0CB1F", logo:"BiH/ba_ZNG_logo.png",                       econ:-0.4,  social:-1.9,  eu: 2.1 },
+  { id:"zpr",     name:"ZPR",     color:"#2651A0", logo:"BiH/ba_ZPR_logo.png",                       econ: 0.0,  social:-0.8,  eu: 1.7 },
+  { id:"demos",   name:"DEMOS",   color:"#ED1B24", logo:"BiH/ba_DEMOS_logo.png",   group:"EPP",     econ: 0.8,  social: 0.6,  eu:-0.6 },
+],
+Serbia: [
+  { id:"sns",    name:"SNS",    color:"#242970", logo:"serbia/rs_SNS_logo.png",    group:"EPP",     econ: 1.4,  social: 0.9,  eu: 0.3 },
+  { id:"sps",    name:"SPS",    color:"#ED1C24", logo:"serbia/rs_SPS_logo.png",    group:"S&D",     econ:-0.9,  social:-0.6,  eu: 1.1 },
+  { id:"ssp",    name:"SSP",    color:"#DA2529", logo:"serbia/rs_SSP_logo.png",    group:"S&D",     econ:-1.8,  social:-1.5,  eu: 2.8 },
+  { id:"nps",    name:"NPS",    color:"#202F56", logo:"serbia/rs_NPS_logo.png",                      econ:-0.1,  social: 1.4,  eu: 1.7 },
+  { id:"zlf",    name:"ZLF",    color:"#0D5F51", logo:"serbia/rs_ZLF_logo.png",    group:"GREENS",  econ:-2.3,  social:-2.0,  eu: 2.2 },
+  { id:"srce",   name:"SRCE",   color:"#394A9A", logo:"serbia/rs_SRCE_logo.png",                     econ:-0.3,  social:-0.7,  eu: 1.7 },
+  { id:"ds",     name:"DS",     color:"#FFF500", logo:"serbia/rs_DS_logo.png",     group:"S&D",     econ:-0.8,  social:-1.3,  eu: 1.7 },
+  { id:"ndss",   name:"NDSS",   color:"#15274B", logo:"serbia/rs_NDSS_logo.png",   group:"ECR",     econ: 0.9,  social: 1.9,  eu:-1.6 },
+  { id:"poks",   name:"POKS",   color:"#111E6C", logo:"serbia/rs_POKS_logo.png",   group:"ECR",     econ: 0.7,  social: 2.4,  eu:-0.4 },
+  { id:"misn",   name:"MI-SN",  color:"#1B3160", logo:"serbia/rs_MISN_logo.png",                    econ:-1.3,  social: 2.8,  eu:-2.7 },
+  { id:"kp",     name:"KP",     color:"#FFC100", logo:"serbia/rs_KP_logo.png",                      econ:-0.4,  social:-1.4,  eu:-0.6 },
+],
+
+Kosovo: [
+  { id:"lvv",    name:"LVV",    color:"#DA1F26", logo:"kosovo/ko_LVV_logo.png",    group:"S&D",     econ:-2.1,  social:-0.8,  eu: 0.8 },
+  { id:"pdk",    name:"PDK",    color:"#2D97D3", logo:"kosovo/ko_PDK_logo.png",    group:"RENEW",   econ: 1.6,  social: 1.7,  eu: 1.3 },
+  { id:"ldk",    name:"LDK",    color:"#EC2426", logo:"kosovo/ko_LDK_logo.png",    group:"EPP",     econ: 1.2,  social: 0.9,  eu: 1.9 },
+  { id:"aak",    name:"AAK",    color:"#03112C", logo:"kosovo/ko_AAK_logo.png",                      econ: 1.5,  social: 1.9,  eu: 1.6 },
+  { id:"nisma",  name:"NISMA",  color:"#542B79", logo:"kosovo/ko_NISMA_logo.png",                    econ:-1.1,  social: 0.2,  eu: 1.2 },
+  { id:"akr",    name:"AKR",    color:"#0C4DA2", logo:"kosovo/ko_AKR_logo.png",    group:"RENEW",   econ: 0.7,  social: 0.1,  eu: 1.5 },
+  { id:"pd",     name:"PD",     color:"#D9241B", logo:"kosovo/ko_PD_logo.png",                       econ: 0.6,  social: 2.6,  eu: 0.4 },
+  { id:"ls",     name:"LS",     color:"#173968", logo:"kosovo/ko_LS_logo.png",     group:"EPP",     econ: 0.3,  social: 2.5,  eu:-1.4 },
+],
+Montenegro: [
+  { id:"pes",    name:"PES",    color:"#0E4194", logo:"montenegro/me_PES_logo.png",    group:"EPP",     econ: 1.7,  social: 0.2,  eu: 2.6 },
+  { id:"dps",    name:"DPS",    color:"#524FA1", logo:"montenegro/me_DPS_logo.png",    group:"S&D",     econ:-0.4,  social: 0.3,  eu: 1.7 },
+  { id:"sd",     name:"SD",     color:"#EC1C24", logo:"montenegro/me_SD_logo.png",     group:"S&D",     econ:-0.6,  social:-0.3,  eu: 1.9 },
+  { id:"sdp",    name:"SDP",    color:"#EB1F28", logo:"montenegro/me_SDP_logo.png",    group:"S&D",     econ:-1.0,  social:-0.6,  eu: 2.1 },
+  { id:"nova",   name:"NOVA",   color:"#001C5F", logo:"montenegro/me_NOVA_logo.png",                      econ: 0.3,  social: 2.6,  eu: 0.8 },
+  { id:"dnp",    name:"DNP",    color:"#005DA4", logo:"montenegro/me_DNP_logo.png",                       econ:-0.2,  social: 2.7,  eu: 0.5 },
+  { id:"dcg",    name:"DCG",    color:"#E21A22", logo:"montenegro/me_DCG_logo.png",    group:"EPP",     econ: 0.3,  social: 0.8,  eu: 1.6 },
+  { id:"ura",    name:"URA",    color:"#0AD651", logo:"montenegro/me_URA_logo.png",    group:"GREENS",  econ:-0.8,  social:-2.4,  eu: 2.5 },
+  { id:"bs",     name:"BS",     color:"#0C8E36", logo:"montenegro/me_BS_logo.png",     group:"EPP",     econ: 0.2,  social: 1.9,  eu: 1.5 },
+  { id:"snp",    name:"SNP",    color:"#0093DF", logo:"montenegro/me_SNP_logo.png",    group:"S&D",     econ:-0.8,  social: 1.7,  eu: 0.6 },
+],
+NorthMacedonia: [
+  { id:"sdsm",           name:"SDSM",           color:"#BF1E24", logo:"north macedonia/mk_SDSM_logo.png",           group:"S&D",     econ:-1.2,  social:-1.1,  eu: 2.2 },
+  { id:"ldp",            name:"LDP",            color:"#F7E706", logo:"north macedonia/mk_LDP_logo.png",            group:"RENEW",   econ: 0.3,  social:-1.3,  eu: 2.2 },
+  { id:"dom",            name:"DOM",            color:"#8CC73F", logo:"north macedonia/mk_DOM_logo.png",            group:"GREENS",  econ:-0.6,  social:-1.9,  eu: 2.3 },
+  { id:"vlen",           name:"VLEN",           color:"#8C0321", logo:"north macedonia/mk_VLEN_logo.png",                             econ: 0.8,  social: 1.3,  eu: 2.5 },
+  { id:"europeanfront",  name:"European Front", color:"#141A32", logo:"north macedonia/mk_EuropeanFront_logo.png",  groups:["S&D","EPP"], econ:-0.4,  social: 1.0,  eu: 2.4 },
+  { id:"vmrodpmne",      name:"VMRO-DPMNE",     color:"#E2001A", logo:"north macedonia/mk_VMRO-DPME_logo.png",     group:"EPP",     econ: 0.9,  social: 1.8,  eu: 0.3 },
+  { id:"levica",         name:"LEVICA",         color:"#FE0202", logo:"north macedonia/mk_LEVICA_logo.png",         group:"LEFT",    econ:-2.7,  social: 1.3,  eu:-2.5 },
+  { id:"znam",           name:"ZNAM",           color:"#416DB4", logo:"north macedonia/mk_ZNAM_logo.png",                             econ:-0.6,  social: 0.4,  eu: 0.8 },
+],
+Greece: [
+  { id:"nd",      name:"ND",      color:"#1A5CC6", logo:"greece/gr_ND_logo.png",      group:"EPP",     econ: 1.6,  social: 0.2,  eu: 2.6 },
+  { id:"syriza",  name:"SYRIZA",  color:"#CA1E25", logo:"greece/gr_SYRIZA_logo.png",  group:"LEFT",    econ:-1.4,  social:-1.6,  eu: 1.1 },
+  { id:"pasok",   name:"PASOK",   color:"#00793A", logo:"greece/gr_PASOK_logo.png",   group:"S&D",     econ:-0.6,  social:-0.8,  eu: 2.5 },
+  { id:"kke",     name:"KKE",     color:"#8D191C", logo:"greece/gr_KKE_logo.png",                        econ:-3.0,  social: 2.2,  eu:-3.0 },
+  { id:"spartans",name:"Spartans",color:"#E9B55F", logo:"greece/gr_Spartans_logo.png",                   econ: 1.7,  social: 3.0,  eu:-2.0 },
+  { id:"el",      name:"EL",      color:"#7EA0C6", logo:"greece/gr_EL_logo.png",      group:"ECR",     econ: 1.4,  social: 2.6,  eu:-1.5 },
+  { id:"niki",    name:"Niki",    color:"#910048", logo:"greece/gr_Niki_logo.png",                       econ: 1.0,  social: 3.0,  eu:-1.2 },
+  { id:"pe",      name:"PE",      color:"#AC3288", logo:"greece/gr_PE_logo.png",                         econ:-2.1,  social:-0.7,  eu:-2.3 },
+  { id:"mera25",  name:"MeRA25",  color:"#E91A16", logo:"greece/gr_MeRA25_logo.png",  group:"LEFT",    econ:-1.7,  social:-1.1,  eu: 1.7 },
+  { id:"fl",      name:"FL",      color:"#020C6A", logo:"greece/gr_FL_logo.png",      group:"PFE",     econ: 0.8,  social: 2.2,  eu:-1.6 },
+  { id:"na",      name:"NA",      color:"#CC3234", logo:"greece/gr_NA_logo.png",      group:"LEFT",    econ:-1.8,  social:-2.0,  eu: 2.4 },
+  { id:"kd",      name:"KD",      color:"#5A14AA", logo:"greece/gr_KD_logo.png",      group:"RENEW",   econ:-0.2,  social:-0.8,  eu: 2.5 },
+],
+Turkey: [
+  { id:"akp",    name:"AKP",    color:"#FF9900", logo:"turkey/tr_AKP_logo.png",                       econ: 1.0,  social: 2.7,  eu:-0.7 },
+  { id:"chp",    name:"CHP",    color:"#E30613", logo:"turkey/tr_CHP_logo.png",    group:"S&D",       econ:-0.7,  social:-2.0,  eu: 2.3 },
+  { id:"mhp",    name:"MHP",    color:"#D90013", logo:"turkey/tr_MHP_logo.png",                       econ: 0.2,  social: 3.0,  eu:-2.0 },
+  { id:"iyi",    name:"İYİ",    color:"#4CAEE5", logo:"turkey/tr_iYi_logo.png",   group:"RENEW",     econ: 1.5,  social:-1.0,  eu: 1.9 },
+  { id:"dem",    name:"DEM",    color:"#74489D", logo:"turkey/tr_DEM_logo.png",    group:"S&D",       econ:-1.5,  social:-2.2,  eu: 1.5 },
+  { id:"yrp",    name:"YRP",    color:"#ED1D24", logo:"turkey/tr_YRP_logo.png",                       econ:-1.3,  social: 3.0,  eu:-2.7 },
+  { id:"zafer",  name:"ZAFER",  color:"#A9262B", logo:"turkey/tr_ZAFER_logo.png",                     econ:-0.5,  social: 2.7,  eu:-2.2 },
+  { id:"tip",    name:"TİP",    color:"#C51F30", logo:"turkey/tr_TiP_logo.png",                       econ:-3.0,  social:-2.8,  eu:-1.5 },
+  { id:"a",      name:"A",      color:"#142E53", logo:"turkey/tr_A_logo.png",                         econ: 1.5,  social: 2.6,  eu:-0.5 },
+],
+Armenia: [
+  { id:"kp",   name:"KP",   color:"#0B0245", logo:"armenia/am_KP_logo.png",   group:"EPP",     econ: 0.6,  social:-0.8,  eu: 2.2 },
+  { id:"hd",   name:"HD",   color:"#313962", logo:"armenia/am_HD_logo.png",   group:"S&D",     econ:-0.5,  social: 1.9,  eu:-1.9 },
+  { id:"pud",  name:"PUD",  color:"#D9222A", logo:"armenia/am_PUD_logo.png",  group:"EPP",     econ: 0.8,  social: 2.0,  eu:-2.2 },
+  { id:"pap",  name:"PAP",  color:"#264796", logo:"armenia/am_PAP_logo.png",  group:"ECR",     econ: 1.2,  social: 2.2,  eu:-2.5 },
+  { id:"lh",   name:"LH",   color:"#6E3B88", logo:"armenia/am_LH_logo.png",   group:"RENEW",   econ: 1.9,  social:-1.8,  eu: 2.7 },
+  { id:"hk",   name:"HK",   color:"#E4B000", logo:"armenia/am_HK_logo.png",                      econ: 0.4,  social:-0.6,  eu: 3.0 },
+  { id:"azb",  name:"AZB",  color:"#292929", logo:"armenia/am_AZB_logo.png",                     econ: 0.3,  social: 1.1,  eu: 1.8 },
+  { id:"hak",  name:"HAK",  color:"#FCB751", logo:"armenia/am_HAK_logo.png",  group:"RENEW",   econ:-0.4,  social:-1.3,  eu: 1.7 },
+],
+Georgia: [
+  { id:"gd",          name:"GD",          color:"#26519D", logo:"georgia/ge_GD_logo.png",   econ:-0.6,  social: 2.7,  eu:-2.2 },
+  { id:"unm",         name:"UNM",         color:"#D13529", logo:"georgia/ge_UNM_logo.png",         groups:["EPP","RENEW"], econ: 1.4,  social:-1.0,  eu: 2.7 },
+  { id:"fg",          name:"FG",          color:"#250244", logo:"georgia/ge_FG_logo.png",          groups:["EPP","ECR"],   econ:-0.4,  social: 0.8,  eu: 2.3 },
+  { id:"cfc",         name:"CfC",         color:"#F58832", logo:"georgia/ge_CfC_logo.png",         group:"RENEW",          econ: 0.7,  social:-1.2,  eu: 2.4 },
+  { id:"sg",          name:"SG",          color:"#FCAF13", logo:"georgia/ge_SG_logo.png",          groups:["RENEW","S&D"], econ:-0.4,  social: 0.3,  eu: 2.4 },
+  { id:"npcgirchi",   name:"NPC-Girchi",  color:"#00A454", logo:"georgia/ge_NPC-Girchi_logo.png",                        econ: 2.4,  social:-1.3,  eu: 0.4 },
+  { id:"glp",         name:"GLP",         color:"#E1073B", logo:"georgia/ge_GLP_logo.png",                               econ:-1.4,  social: 0.2,  eu: 1.2 },
+  { id:"apg",         name:"APG",         color:"#E7B031", logo:"georgia/ge_APG_logo.png",         group:"ECR",           econ:-0.7,  social: 2.9,  eu:-1.3 },
+],
+Ukraine: [
+  { id:"sn",       name:"SN",       color:"#37B34A", logo:"ukraine/ua_SN_logo.png",       group:"RENEW",  econ: 0.5,  social:-0.8,  eu: 2.2 },
+  { id:"pzzh",     name:"PZZh",     color:"#21409A", logo:"ukraine/ua_PZZh_logo.png",     group:"S&D",    econ:-1.1,  social: 1.8,  eu:-1.2 },
+  { id:"batkiv",   name:"Batkiv",   color:"#EE2136", logo:"ukraine/ua_Batkiv_logo.png",   group:"EPP",    econ:-1.4,  social: 1.1,  eu: 1.9 },
+  { id:"yes",      name:"YeS",      color:"#2760AD", logo:"ukraine/ua_YeS_logo.png",      group:"EPP",    econ: 1.7,  social: 0.9,  eu: 2.4 },
+  { id:"holos",    name:"Holos",    color:"#FA4616", logo:"ukraine/ua_Holos_logo.png",    group:"RENEW",  econ: 1.3,  social:-1.9,  eu: 2.3 },
+  { id:"svoboda",  name:"Svoboda",  color:"#0E294D", logo:"ukraine/ua_Svoboda_logo.png",                   econ:-2.0,  social: 2.9,  eu: 0.7 },
+  { id:"corps",    name:"Corps",    color:"#040433", logo:"ukraine/ua_Corps_logo.png",                     econ:-2.4,  social: 3.0,  eu:-1.8 },
+  { id:"udar",     name:"UDAR",     color:"#DA2127", logo:"ukraine/ua_UDAR_logo.png",     group:"EPP",    econ: 1.5,  social:-0.8,  eu: 2.1 },
+  { id:"rozpol",   name:"RozPol",   color:"#00264A", logo:"ukraine/ua_RozPol_logo.png",                   econ: 0.9,  social: 0.4,  eu: 0.8 },
+],
+Cyprus: [
+  { id:"disy",  name:"DISY",  color:"#034693", logo:"cyprus/cy_DISY_logo.png",  group:"EPP",        econ: 1.9,  social: 0.7,  eu: 2.4 },
+  { id:"akel",  name:"AKEL",  color:"#EC1E27", logo:"cyprus/cy_AKEL_logo.png",  group:"LEFT",       econ:-2.8,  social:-2.0,  eu: 0.7 },
+  { id:"elam",  name:"ELAM",  color:"#286CB5", logo:"cyprus/cy_ELA,_logo.png",  group:"ECR",        econ: 0.4,  social: 3.0,  eu:-1.7 },
+  { id:"alma",  name:"ALMA",  color:"#0028C4", logo:"cyprus/cy_ALMA,_logo.png",                      econ: 0.9,  social:-0.8,  eu: 1.8 },
+  { id:"diko",  name:"DIKO",  color:"#0033A1", logo:"cyprus/cy_DIKO_logo.png",  group:"S&D",        econ:-0.6,  social: 0.6,  eu: 2.3 },
+  { id:"volt",  name:"Volt",  color:"#502379", logo:"cyprus/cy_Volt_logo.png",  group:"GREENS",     econ: 0.9,  social:-1.8,  eu: 3.0 },
+  { id:"edek",  name:"EDEK",  color:"#0E736C", logo:"cyprus/cy_EDEK_logo.png",  group:"S&D",        econ:-0.8,  social: 0.3,  eu: 1.8 },
+  { id:"kosp",  name:"KOSP",  color:"#0A9748", logo:"cyprus/cy_KOSP_logo.png",  group:"GREENS",     econ:-1.0,  social:-2.1,  eu: 2.1 },
+  { id:"dipa",  name:"DiPA",  color:"#00AEEF", logo:"cyprus/cy_DiPA_logo.png",  group:"RENEW",      econ: 1.2,  social:-0.2,  eu: 2.5 },
+  { id:"ep",    name:"EP",    color:"#0F6852", logo:"cyprus/cy_EP_logo.png",                        econ: 0.3,  social: 2.6,  eu:-1.2 },
+  { id:"apc",   name:"APC",   color:"#EB7203", logo:"cyprus/cy_APC_logo.png",   group:"LEFT",       econ:-0.8,  social:-2.4,  eu: 1.2 },
+],
+
+Romania: [
+  { id:"psd",    name:"PSD",    color:"#EF3340", logo:"romania/ro_PSD_logo.png",    group:"S&D",    econ:-0.6,  social: 1.0,  eu: 1.1 },
+  { id:"pnl",    name:"PNL",    color:"#2461A2", logo:"romania/ro_PNL_logo.png",    group:"EPP",    econ: 1.2,  social: 1.8,  eu: 2.0 },
+  { id:"usr",    name:"USR",    color:"#002A5A", logo:"romania/ro_USR_logo.png",    group:"RENEW",  econ: 0.3,  social:-0.8,  eu: 2.4 },
+  { id:"aur",    name:"AUR",    color:"#FCB21F", logo:"romania/ro_AUR_logo.png",    group:"ECR",    econ: 0.1,  social: 2.5,  eu:-1.7 },
+  { id:"udmr",   name:"UDMR",   color:"#00833E", logo:"romania/ro_UDMR_logo.png",   group:"EPP",    econ: 0.6,  social: 1.1,  eu: 1.9 },
+  { id:"per",    name:"AER",    color:"#087241", logo:"romania/ro_AER_logo.png",    group:"GREENS", econ:-0.7,  social: 0.5,  eu:1 },
+  { id:"sens",   name:"SENS",   color:"#364B44", logo:"romania/ro_SENS_logo.png",   group:"GREENS", econ:-0.5,  social:-1.8,  eu: 2.1 },
+  { id:"pmp",    name:"PMP",    color:"#007BC0", logo:"romania/ro_PMP_logo.png",    group:"RENEW",  econ: 0.9,  social: 2.0,  eu: 1.4 },
+  { id:"fd",     name:"FD",     color:"#08510A", logo:"romania/ro_FD_logo.png",     group:"EPP",    econ: 1.1,  social: 1.6,  eu: 1.7 },
+  { id:"reper",  name:"REPER",  color:"#C40075", logo:"romania/ro_REPER_logo.png",  group:"RENEW",  econ: 0.2,  social:-0.9,  eu: 2.3 },
+  { id:"sos",    name:"SOS",    color:"#4DA9DA", logo:"romania/ro_SOS_logo.png",                       econ:-0.2,  social: 2.8,  eu:-2.3 },
+  { id:"pot",    name:"POT",    color:"#330099", logo:"romania/ro_POT_logo.png",                       econ: 0.7,  social: 2.5,  eu:-2.4 },
+],
+Bulgaria: [
+  { id:"gerb",      name:"GERB",      color:"#173F6E", logo:"bulgaria/bg_GERB_logo.png",      group:"EPP",    econ: 1.4,  social: 1.6,  eu: 2.0 },
+  { id:"sds",       name:"SDS",       color:"#295CB3", logo:"bulgaria/bg_SDS_logo.png",       group:"EPP",    econ: 1.0,  social: 1.2,  eu: 2.4 },
+  { id:"pp",        name:"PP",        color:"#0014FE", logo:"bulgaria/bg_PP_logo.png",        group:"RENEW",  econ: 0.7,  social:-0.8,  eu: 2.5 },
+  { id:"dab",       name:"DaB",       color:"#A0C518", logo:"bulgaria/bg_DaB_logo.png",       group:"EPP",    econ: 0.8,  social:-0.6,  eu: 2.5 },
+  { id:"dsb",       name:"DSB",       color:"#02528A", logo:"bulgaria/bg_DSB_logo.png",       group:"EPP",    econ: 1.2,  social: 1.0,  eu: 2.2 },
+  { id:"v",         name:"V",         color:"#C29E62", logo:"bulgaria/bg_V_logo.png",         group:"ESN",    econ:-0.3,  social: 2.8,  eu:-2.7 },
+  { id:"dpsnn",     name:"DPS-NN",    color:"#0563A8", logo:"bulgaria/bg_DPS-NN_logo.png",                      econ: 0.9,  social: 0.6,  eu: 1.0 },
+  { id:"bsp",       name:"BSP",       color:"#D7171E", logo:"bulgaria/bg_BSP_logo.png",       group:"S&D",    econ:-0.7,  social: 0.6,  eu: 0.5 },
+  { id:"aps",       name:"APS",       color:"#1968B5", logo:"bulgaria/bg_APS_logo.png",       group:"RENEW",  econ: 0.4,  social: 0.3,  eu: 1.6 },
+  { id:"itn",       name:"ITN",       color:"#4BB7DE", logo:"bulgaria/bg_ITN_logo.png",       group:"ECR",    econ: 0.9,  social: 1.2,  eu: 0.7 },
+  { id:"mech",      name:"MECh",      color:"#9A2929", logo:"bulgaria/bg_MECh_logo.png",                         econ: 0.2,  social: 2.3,  eu:-1.2 },
+  { id:"velichie",  name:"Velichie",  color:"#AC2225", logo:"bulgaria/bg_Velichie_logo.png",                     econ: 0.1,  social: 1.9,  eu:-1.3 },
+],
+Albania: [
+  { id:"ps",     name:"PS",     color:"#781D6F", logo:"albania/al_PS_logo.png",     group:"S&D",   econ:-0.6,  social:-0.2,  eu: 2.0 },
+  { id:"pd",     name:"PD",     color:"#00529C", logo:"albania/al_PD_logo.png",     group:"EPP",   econ: 0.9,  social: 0.8,  eu: 1.8 },
+  { id:"psd",    name:"PSD",    color:"#0C5D34", logo:"albania/al_PSD_logo.png",                        econ:-0.2,  social: 0.2,  eu: 1.6 },
+  { id:"lshb",   name:"LSHB",   color:"#F57F20", logo:"albania/al_LSHB_logo.png",                       econ: 0.3,  social: 0.2,  eu: 1.2 },
+  { id:"pm",     name:"PM",     color:"#103996", logo:"albania/al_PM_logo.png",                         econ: 1.7,  social: 0.8,  eu: 1.5 },
+  { id:"bashke", name:"BASHKE", color:"#E82D36", logo:"albania/al_BASHKE_logo.png", group:"LEFT",  econ:-1.9,  social:-1.6,  eu: 0.9 },
+  { id:"pdiu",   name:"PDIU",   color:"#009EE2", logo:"albania/al_PDIU_logo.png",                       econ: 0.4,  social: 2.1,  eu: 1.1 },
+  { id:"pl",     name:"PL",     color:"#C02428", logo:"albania/al_PL_logo.png",                         econ:-0.2,  social: 0.9,  eu: 1.8 },
+  { id:"nth",    name:"NTH",    color:"#00798D", logo:"albania/al_NTH_logo.png",                        econ: 0.2,  social:-0.8,  eu: 2.0 },
+  { id:"kea",    name:"KEA",    color:"#005EBD", logo:"albania/al_KEA_logo.png",                        econ: 1.1,  social: 0.3,  eu: 2.7 },
+  { id:"dzh",    name:"Dzh",    color:"#592C50", logo:"albania/al_Dzh_logo.png",                        econ: 1.3,  social: 1.8,  eu: 1.5 },
+],
+Moldova: [
+  { id:"pas",   name:"PAS",   color:"#FFDD00", logo:"moldova/md_PAS_logo.png",   group:"EPP",        econ: 0.9,  social:-0.5,  eu: 2.8 },
+  { id:"psrm",  name:"PSRM",  color:"#CA333D", logo:"moldova/md_PSRM_logo.png",  group:"LEFT",       econ:-1.6,  social: 2.0,  eu:-2.1 },
+  { id:"pcrm",  name:"PCRM",  color:"#D2222A", logo:"moldova/md_PCRM_logo.png",  group:"LEFT",       econ:-2.4,  social: 2.3,  eu:-2.4 },
+  { id:"a",     name:"A",     color:"#026D59", logo:"moldova/md_A_logo.png",     group:"S&D",        econ:-0.3,  social: 0.1,  eu:-0.6 },
+  { id:"da",    name:"DA",    color:"#24247A", logo:"moldova/md_DA_logo.png",                          econ: 0.6,  social: 2.2,  eu: 0.8 },
+  { id:"pn",    name:"PN",    color:"#2680FA", logo:"moldova/md_PN_logo.png",                          econ:-1.3,  social: 2.1,  eu:-1.7 },
+  { id:"psde",  name:"PSDE",  color:"#D93029", logo:"moldova/md_PSDE_logo.png",  group:"S&D",        econ:-0.4,  social: 0.6,  eu: 1.6 },
+  { id:"pve",   name:"PVE",   color:"#69A921", logo:"moldova/md_PVE_logo.png",   group:"GREENS",     econ:-0.8,  social:-1.3,  eu: 1.9 },
+],
+
+  // Add other countries...
+};
+
+// ===== LOGO POSITION TWEAKS =====
+const LOGO_OFFSETS = {
+  Iceland:{x:30,y:0}, Greenland:{x:20,y:-50}, Norway:{x:-340,y:400}, Sweden:{x:-70,y:280},
+  Finland:{x:60,y:250}, Denmark:{x:-55,y:0}, UK:{x:90,y:220}, Ireland:{x:40,y:20}, NIreland:{x:10,y:-10},
+  Estonia:{x:37,y:-10}, Latvia:{x:75,y:-10}, Lithuania:{x:25,y:-10}, Cyprus:{x:-10,y:20},
+  Netherlands:{x:10,y:-10}, Belgium:{x:10,y:-20}, France:{x:0,y:-50}, Spain:{x:-100,y:20},
+  Portugal:{x:10,y:-100}, Italy:{x:-10,y:-80}, Austria:{x:115,y:0}, Czechia:{x:-50,y:-10},
+  Ukraine:{x:0,y:-30}, Moldova:{x:0,y:-50}, Slovakia:{x:0,y:-20}, Slovenia:{x:-20,y:5}, Croatia:{x:10,y:-120},
+  Bosnia:{x:10,y:-30}, Montenegro:{x:0,y:-10}, Albania:{x:10,y:50}, NorthMacedonia:{x:0,y:-20},
+  Armenia:{x:-20,y:-27}, Greece:{x:-150,y:-80}, Germany:{x:-10,y:-50}, Netherlands:{x:20,y:-10}, Switzerland:{x:0,y:-12}, Poland:{x:0,y:-12}, Hungary:{x:0,y:12}, 
+  Romania:{x:-20,y:0}
+};
+const LOGO_SCALE = { Norway:1.0, Austria:1.0, Croatia:0.7, France:5.0, Italy:2.0, Portugal:3.0, Spain:5.0, Ireland:3.0, NIreland:2.7, UK:2.7, Greenland:3.0, Iceland:4.0, Norway:2.2,
+  Sweden:3.0, Finland:3.2, Denmark:2.3, Germany:4.0, Netherlands:3.0, Belgium:2.5, Switzerland:4.5, Estonia:3.5, Latvia:4.0, Lithuania:3.5, Poland:3.7, Czechia:5.0, Austria:4.0,
+  Slovakia:3.5, Hungary:4.0, Slovenia:4.0, Croatia:2.0, Bosnia:3.5, Serbia: 2.8, Kosovo:3.0, Montenegro:3.0, NorthMacedonia:3.0, Greece:1.5, Turkey:5.0, Armenia:3.0, Georgia:4.0,
+  Ukraine:4.0, Cyprus:2.0, Romania:4.0, Bulgaria:3.0, Albania:2.7, Moldova:3.0
+};
+
+// =====  STATE  =====
+let selectedCountry = null;
+let sideTitle, partyList;
+let userHasInteracted = false;
+let ro;
+
+let svg, europe, mapRoot;
+let scale = 1, tx = 0, ty = 0;
+const MIN_SCALE = 0.25, MAX_SCALE = 8;
+const PADDING = 24;
+const SELECT_GOLD = "#F6D64C";
+
+// Panning
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+let viewStart = { tx: 0, ty: 0, scale: 1 };   // add scale
+
+
+// Selections: Map(country -> { partyId, color, logoHref })
+const selections = new Map();
+
+// ===== SPECTRUM ENGINE =====
+const SPEC_KEYS = ["economic","social","eu"];
+const SPEC_RANGE = { min:-3, max:3 };
+// Category labels for spectrums (top vs bottom)
+const SPEC_LABELS = {
+  economic: { top: "Free-market", bottom: "State control" },
+  social:   { top: "Conservative", bottom: "Progressive" },
+  eu:       { top: "Pro-EU",       bottom: "Eurosceptic" },
+};
+
+function normalizeScore(v){ return Math.max(SPEC_RANGE.min, Math.min(SPEC_RANGE.max, v)); }
+
+// Convert a score in [-3,3] → pixel Y within a given bar element (top=+3, bottom=-3)
+function scoreToY(score, barEl){
+  const h = barEl.getBoundingClientRect().height;   // live height (stretches with panel)
+  const topPad = 8, bottomPad = 8;                  // match CSS bar::before top/bottom
+  const usable = Math.max(0, h - topPad - bottomPad);
+
+  const t = (score - SPEC_RANGE.min) / (SPEC_RANGE.max - SPEC_RANGE.min); // 0..1
+  const inv = 1 - t; // +3→0 .. -3→1
+  return topPad + inv * usable;
+}
+
+function getSelectedParties(){
+  const out = [];
+  for (const [country, sel] of selections.entries()){
+    const parties = PARTY_DB[country] ?? PARTY_DB.DEFAULT;
+    let p = sel.partyId ? parties.find(pp => pp.id === sel.partyId) : null;
+    if (!p) p = parties.find(pp => pp.color === sel.color && pp.logo === sel.logoHref) || null;
+    if (p) out.push(p);
+  }
+  return out;
+}
+
+function computeUserSpec(){
+  const parts = getSelectedParties();
+  if (!parts.length) return null;
+  const sum = { economic:0, social:0, eu:0 };
+  parts.forEach(p => {
+    sum.economic += (p.econ ?? 0);
+    sum.social   += (p.social ?? 0);
+    sum.eu       += (p.eu ?? 0);
+  });
+  return {
+    economic: normalizeScore(sum.economic / parts.length),
+    social:   normalizeScore(sum.social   / parts.length),
+    eu:       normalizeScore(sum.eu       / parts.length),
+  };
+}
+
+// === NEW: global EU-group averages across the entire DB (independent of selection) ===
+function computeGlobalGroupSpecs(){
+  const buckets = {}; // group -> { w, economic, social, eu }
+  const add = (code, w, p) => {
+    if (!code) return;
+    if (!buckets[code]) buckets[code] = { w:0, economic:0, social:0, eu:0 };
+    buckets[code].w        += w;
+    buckets[code].economic += (p.econ ?? 0) * w;
+    buckets[code].social   += (p.social ?? 0) * w;
+    buckets[code].eu       += (p.eu ?? 0) * w;
+  };
+
+  let sawAny = false;
+
+  for (const country in PARTY_DB){
+    if (country === "DEFAULT") continue;
+    const arr = PARTY_DB[country] || [];
+    arr.forEach(p => {
+      const affs = parseAffiliations(p);
+      if (affs.length) sawAny = true;
+      affs.forEach(({code, weight}) => add(code, weight, p));
+    });
+  }
+
+  // Fallback to DEFAULT so something shows before you fill data
+  if (!sawAny && PARTY_DB.DEFAULT?.length){
+    PARTY_DB.DEFAULT.forEach(p => {
+      const affs = parseAffiliations(p);
+      affs.forEach(({code, weight}) => add(code, weight, p));
+    });
+  }
+
+  const out = {};
+  for (const g in buckets){
+    const b = buckets[g];
+    out[g] = {
+      economic: normalizeScore(b.economic / (b.w || 1)),
+      social:   normalizeScore(b.social   / (b.w || 1)),
+      eu:       normalizeScore(b.eu       / (b.w || 1)),
+    };
+  }
+  return out;
+}
+
+
+function updateSpectrums(){
+  const container = document.getElementById('spectra');
+  if (!container) return;
+
+  const user = computeUserSpec();             // null if no selections
+  const groups = computeGlobalGroupSpecs();   // ALWAYS present (global DB)
+
+  SPEC_KEYS.forEach(key => {
+    const bar = container.querySelector(`.spectrum[data-key="${key}"] .bar`);
+    if (!bar) return;
+    // Clear old markers
+    bar.querySelectorAll('.marker').forEach(n => n.remove());
+
+    // YOU marker (only if selected parties exist)
+    // YOU marker (only if selected parties exist) — no numeric value shown
+if (user){
+  const y = scoreToY(user[key], bar);
+  const m = document.createElement('div');
+  m.className = 'marker you';
+  m.style.top = `${y}px`;
+  m.innerHTML = `<div class="dot"></div><div class="label">YOU</div>`;
+  bar.appendChild(m);
+}
+
+
+    // EU group markers (global averages, always shown if present in DB)
+    for (const g in groups){
+      const y = scoreToY(groups[g][key], bar);
+      const meta = EU_GROUPS[g] || {};
+      const logo = meta.logo || 'assets/placeholder.png';
+      const name = meta.name || g;
+
+      const m = document.createElement('div');
+      m.className = 'marker group';
+      m.style.top = `${y}px`;
+      m.innerHTML = `<img src="${logo}" alt="${name}">`;
+
+      bar.appendChild(m);
+    }
+  });
+}
+
+// =====  INIT  =====
+window.addEventListener('DOMContentLoaded', () => {
+  // Sidebar nodes
+  sideTitle = document.getElementById('sideTitle');
+  partyList = document.getElementById('partyList');
+
+  // SVG handles
+  svg = document.getElementById('mapSvg');
+  mapRoot = svg.querySelector('#mapRoot') || svg; // wrapper we transform
+  europe  = svg.querySelector('#Europe')  || svg; // geometry group
+
+  // Tag countries
+  tagCountries();
+
+  // Controls
+  const btnFit     = document.getElementById('btnFit');
+  const btnZoomIn  = document.getElementById('btnZoomIn');
+  const btnZoomOut = document.getElementById('btnZoomOut');
+
+  btnFit.addEventListener('click', () => { userHasInteracted = false; fitAll(); });
+  btnZoomIn.addEventListener('click',  () => { markInteracted(); zoomAtCenter(1.15); });
+  btnZoomOut.addEventListener('click', () => { markInteracted(); zoomAtCenter(1/1.15); });
+// Set spectrum top/bottom labels (and clear any numbers)
+const spectraRoot = document.getElementById('spectra');
+if (spectraRoot){
+  SPEC_KEYS.forEach(key => {
+    const col = spectraRoot.querySelector(`.spectrum[data-key="${key}"]`);
+    if (!col) return;
+    const topEl = col.querySelector('.axis-label.top');
+    const midEl = col.querySelector('.axis-label.mid');
+    const botEl = col.querySelector('.axis-label.bottom');
+    if (topEl) topEl.textContent = SPEC_LABELS[key].top;
+    if (botEl) botEl.textContent = SPEC_LABELS[key].bottom;
+    if (midEl) midEl.textContent = ""; // hide via CSS, clear anyway
+  });
+}
+
+  // Mouse wheel zoom (cursor-centric)
+  svg.addEventListener('wheel', (e)=>{ markInteracted(); onWheel(e); }, { passive:false });
+
+  // Drag to pan
+  svg.addEventListener('mousedown', (e)=>{ markInteracted(); onPanStart(e); });
+  window.addEventListener('mousemove', onPanMove);
+  window.addEventListener('mouseup', onPanEnd);
+
+  // Click handler (delegation)
+  svg.addEventListener('click', onMapClick);
+
+  // First fit + spectra after layout settles
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    fitAll();
+    updateSpectrums();
+  }));
+
+  // Optional re-fit before user interacts
+  const container = document.getElementById('mapContainer');
+  ro = new ResizeObserver(entries => {
+    if (userHasInteracted) return;
+    for (const e of entries) {
+      if (e.contentRect.width > 0 && e.contentRect.height > 0) {
+        fitAll();
+        updateSpectrums();
+      }
+    }
+  });
+  ro.observe(container);
+});
+
+// =====  HELPERS  =====
+function markInteracted(){ userHasInteracted = true; }
+
+function applyCountryFill(country, color){
+  countryNodes(country).forEach(n => { n.style.fill = color; });
+}
+function clearCountryFill(country){
+  countryNodes(country).forEach(n => { n.style.fill = ''; });
+}
+
+// =====  COUNTRY TAGGING  =====
+function tagCountries(){
+  const all = svg.querySelectorAll('#Europe *');
+  all.forEach(el => {
+    const id = el.id || '';
+    if (!id) return;
+    const base = baseCountry(id);
+    if (base && COUNTRIES.includes(base)) {
+      el.classList.add('country-shape');
+      el.dataset.country = base;
+    }
+  });
+}
+function baseCountry(id){
+  if (!id) return null;
+  const dash = id.indexOf('-');
+  return dash === -1 ? id : id.slice(0, dash);
+}
+function parseAffiliations(p){
+  // Accept p.group or p.groups
+  let aff = p.group ?? p.groups;
+  if (!aff) return [];
+
+  // "EPP"
+  if (typeof aff === 'string') return [{ code: aff, weight: 1 }];
+
+  // ["EPP","RENEW"]
+  if (Array.isArray(aff) && typeof aff[0] === 'string') {
+    const w = 1 / aff.length;
+    return aff.map(code => ({ code, weight: w }));
+  }
+
+  // [{code:"EPP", weight:0.7}, {code:"RENEW", weight:0.3}]
+  if (Array.isArray(aff) && typeof aff[0] === 'object') {
+    let total = aff.reduce((s,a)=> s + (a.weight ?? 1), 0) || 1;
+    return aff.map(a => ({ code: a.code ?? a.group, weight: (a.weight ?? 1)/total }))
+              .filter(x => !!x.code);
+  }
+
+  return [];
+}
+
+function setSelectedCountry(country){
+  if (selectedCountry === country){
+    if (selections.has(country)){
+      applyCountryFill(country, selections.get(country).color);
+    } else {
+      clearCountryFill(country);
+    }
+    selectedCountry = null;
+    updateSpectrums();
+    return;
+  }
+
+  if (selectedCountry){
+    if (selections.has(selectedCountry)){
+      applyCountryFill(selectedCountry, selections.get(selectedCountry).color);
+    } else {
+      clearCountryFill(selectedCountry);
+    }
+  }
+
+  applyCountryFill(country, SELECT_GOLD);
+  selectedCountry = country;
+  updateSpectrums();
+}
+
+function applyTransform(){
+  const m = `matrix(${scale},0,0,${scale},${tx},${ty})`;
+  mapRoot.setAttribute('transform', m);
+}
+
+// === Centering in pure SVG user units (no px/user mismatch) ===
+function fitAll(){
+  // Measure geometry bbox in user units
+  mapRoot.removeAttribute('transform');
+  const bbox = mapRoot.getBBox();
+
+  // SVG viewport in user units
+  const vb = svg.viewBox?.baseVal
+    ? { x: svg.viewBox.baseVal.x, y: svg.viewBox.baseVal.y, width: svg.viewBox.baseVal.width, height: svg.viewBox.baseVal.height }
+    : NATURAL_VIEWBOX;
+
+  // Convert padding from CSS px → user units (once)
+  const rect = svg.getBoundingClientRect();
+  const pxToUx = vb.width / rect.width;
+  const pyToUy = vb.height / rect.height;
+  const padUx = PADDING * pxToUx;
+  const padUy = PADDING * pyToUy;
+
+  // Scale to fit inside vb with padding (all in user units)
+  const scaleX = (vb.width  - padUx*2) / bbox.width;
+  const scaleY = (vb.height - padUy*2) / bbox.height;
+  scale = clamp(Math.min(scaleX, scaleY), MIN_SCALE, MAX_SCALE);
+
+  // Center inside vb (user units)
+  tx = -bbox.x * scale + (vb.width  - bbox.width  * scale) / 2 - vb.x * scale;
+  ty = -bbox.y * scale + (vb.height - bbox.height * scale) / 2 - vb.y * scale;
+
+  applyTransform();
+}
+
+// Zoom relative to the mouse position
+function onWheel(e){
+  e.preventDefault();
+  markInteracted();
+
+  // Scroll down (deltaY>0) -> zoom OUT; up -> zoom IN
+  // Adjust 1.0015 ↔ 1.003 to change speed
+  const k = Math.pow(1.0015, -e.deltaY);
+  zoomAtPoint(k, e.clientX, e.clientY);
+}
+
+function zoomAtPoint(factor, clientX, clientY){
+  if (!Number.isFinite(factor) || factor === 1) return;
+
+  // Proposed new scale, clamped
+  const newScale = clamp(scale * factor, MIN_SCALE, MAX_SCALE);
+  // If clamping kills the change, bail early
+  if (newScale === scale) return;
+
+  // Convert the mouse position to *map coordinates* (SVG user units)
+  const p = screenToSvg(clientX, clientY); // {x,y} in the coordinate space of mapRoot
+
+  // --- Key formula (compose about a point in same coordinate space):
+  // M' = T(p) · S(f) · T(-p) · M
+  // For matrix(s,0,0,s,tx,ty), that yields:
+  // s'  = f * s
+  // tx' = f * tx + (1 - f) * p.x
+  // ty' = f * ty + (1 - f) * p.y
+
+  const f = newScale / scale;       // actual factor after clamping
+  tx = f * tx + (1 - f) * p.x;
+  ty = f * ty + (1 - f) * p.y;
+  scale = newScale;
+
+  applyTransform();
+}
+function zoomAtCenter(f){
+  const r = svg.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top  + r.height / 2;
+  zoomAtPoint(f, cx, cy);
+}
+
+function screenToSvg(clientX, clientY){
+  const domPoint = svg.createSVGPoint();
+  domPoint.x = clientX;
+  domPoint.y = clientY;
+  const ctm = mapRoot.getScreenCTM();
+  const inv = ctm.inverse();
+  return domPoint.matrixTransform(inv);
+}
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+// =====  PAN (svg-space, jitter-free)  =====
+// freezes inverse CTM at pan start + uses rAF to batch repaints
+
+let panAnchorSvg = null;     // svg-space point under the cursor at drag start
+let invCTMStart = null;      // inverse screen->svg transform at drag start
+let rafId = 0;               // rAF id if a frame is queued
+let lastMouse = null;        // {x,y} last pointer position we need to apply
+
+
+function screenToSvgWith(matrixInv, clientX, clientY){
+  const pt = svg.createSVGPoint();
+  pt.x = clientX; pt.y = clientY;
+  return pt.matrixTransform(matrixInv);
+}
+
+function onPanStart(e){
+  if (e.button !== 0) return; // left only
+  isPanning = true;
+
+  // Freeze the inverse transform at pan start (prevents re-projection jitter)
+  invCTMStart = mapRoot.getScreenCTM().inverse();
+
+  // Anchor point in *start* svg-space
+  panAnchorSvg = screenToSvgWith(invCTMStart, e.clientX, e.clientY);
+
+  // Snapshot of current transform
+  viewStart = { tx, ty, scale };
+
+  // Prepare rAF loop
+  lastMouse = { x: e.clientX, y: e.clientY };
+  if (!rafId) rafId = requestAnimationFrame(panStep);
+
+  svg.style.cursor = 'grabbing';
+  e.preventDefault();
+}
+
+function onPanMove(e){
+  if (!isPanning) return;
+  // Just record the latest mouse; actual work happens in rAF
+  lastMouse = { x: e.clientX, y: e.clientY };
+}
+
+function panStep(){
+  rafId = 0;
+  if (!isPanning || !lastMouse) return;
+
+  // Project current mouse through the *frozen* inverse CTM
+  const p = screenToSvgWith(invCTMStart, lastMouse.x, lastMouse.y);
+
+  // Keep the original svg point under the cursor (scale from start)
+  tx = viewStart.tx + (p.x - panAnchorSvg.x) * viewStart.scale;
+  ty = viewStart.ty + (p.y - panAnchorSvg.y) * viewStart.scale;
+
+  applyTransform();
+
+  // If still panning, schedule next frame
+  if (isPanning) rafId = requestAnimationFrame(panStep);
+}
+
+function onPanEnd(){
+  if (!isPanning) return;
+  isPanning = false;
+  svg.style.cursor = '';
+  panAnchorSvg = null;
+  invCTMStart = null;
+  lastMouse = null;
+  if (rafId){
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
+}
+// =====  CLICK / UI =====
+function onMapClick(e){
+  let target = e.target;
+  while (target && target !== svg && !target.dataset?.country) {
+    target = target.parentNode;
+  }
+  if (!target || !target.dataset?.country) return;
+
+  const country = target.dataset.country;
+  setSelectedCountry(country);
+  showParties(country);
+}
+
+function showParties(country){
+  sideTitle.textContent = country;
+  partyList.innerHTML = "";
+
+  const parties = PARTY_DB[country] ?? PARTY_DB.DEFAULT;
+  parties.forEach(p => {
+    // gather unique group codes (weighted or not)
+    const affs = parseAffiliations(p);
+    const codes = [...new Set(affs.map(a => a.code))];
+
+    // build logos (limit to 3 so the row stays tidy)
+    const logos = codes.slice(0,3).map(code => {
+      const meta = EU_GROUPS[code];
+      if (!meta?.logo) return '';
+      const alt = meta.name || code;
+      return `<img class="eu-logo" src="${meta.logo}" alt="${alt}">`;
+    }).join('');
+
+    const btn = document.createElement('button');
+    btn.className = 'party-btn';
+    btn.innerHTML = `
+      <img class="party-logo" style="background:${p.color}" src="${p.logo || partyLogoFallback(country,p)}" alt="">
+      <span class="party-name">${p.name}</span>
+      <span class="party-meta">${logos}</span>
+    `;
+
+    btn.addEventListener('click', () => chooseParty(country, p));
+    partyList.appendChild(btn);
+  });
+}
+
+// optional: fallback path if you omit p.logo and follow a convention
+function partyLogoFallback(country, p){
+  return `assets/${country}/${p.id}/logo.png`;
+}
+
+
+
+function formatSpecs(p){
+  const e = (p.econ ?? 0), s = (p.social ?? 0), u = (p.eu ?? 0);
+  return `· E:${signed1(e)} S:${signed1(s)} EU:${signed1(u)}`;
+}
+function signed1(n){ return (n>0?`+${n}`:`${n}`); }
+
+// =====  APPLY PARTY SELECTION  =====
+function chooseParty(country, party){
+  applyCountryFill(country, party.color);
+  dropLogo(country, party.logo);
+  selections.set(country, { partyId: party.id, color: party.color, logoHref: party.logo });
+  if (selectedCountry === country) selectedCountry = null;
+  updateSpectrums();
+}
+
+// Compute a union bbox of all shapes belonging to a country
+function countryBBox(country){
+  const nodes = [
+    ...svg.querySelectorAll(`#Europe [id^="${CSS.escape(country)}-"]`),
+    ...svg.querySelectorAll(`#Europe [id="${CSS.escape(country)}"]`),
+    ...svg.querySelectorAll(`#Europe g#${CSS.escape(country)} *`)
+  ].filter(n => n.getBBox);
+
+  if (!nodes.length) return null;
+
+  let b = nodes[0].getBBox();
+  let minX=b.x, minY=b.y, maxX=b.x+b.width, maxY=b.y+b.height;
+  for (let i=1;i<nodes.length;i++){
+    const bb = nodes[i].getBBox();
+    minX = Math.min(minX, bb.x);
+    minY = Math.min(minY, bb.y);
+    maxX = Math.max(maxX, bb.x + bb.width);
+    maxY = Math.max(maxY, bb.y + bb.height);
+  }
+  return { x:minX, y:minY, width:maxX-minX, height:maxY-minY };
+}
+
+function countryNodes(country){
+  return [
+    ...svg.querySelectorAll(`#Europe [id^="${CSS.escape(country)}-"]`),
+    ...svg.querySelectorAll(`#Europe [id="${CSS.escape(country)}"]`),
+    ...svg.querySelectorAll(`#Europe g#${CSS.escape(country)} *`)
+  ].filter(el => el.matches('path,polygon,rect,ellipse'));
+}
+
+function dropLogo(country, logoHref){
+  const bbox = countryBBox(country);
+  if (!bbox) return;
+
+  const baseSize = Math.max(36, Math.min(96, Math.min(bbox.width, bbox.height) * 0.18));
+  const scaleMul = LOGO_SCALE[country] ?? 1;
+  const size = baseSize * scaleMul;
+
+  const off = LOGO_OFFSETS[country] ?? {x:0, y:0};
+  const cx = bbox.x + bbox.width/2  + off.x;
+  const cy = bbox.y + bbox.height/2 + off.y;
+
+  const old = svg.querySelector(`#marker-${CSS.escape(country)}`);
+  if (old) old.remove();
+
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('id', `marker-${country}`);
+  g.setAttribute('class', 'logo-marker');
+  g.setAttribute('transform', `translate(${cx},${cy})`);
+
+  const img = document.createElementNS('http://www.w3.org/2000/svg','image');
+  img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', logoHref);
+  img.setAttribute('x', -size/2);
+  img.setAttribute('y', -size/2);
+  img.setAttribute('width', size);
+  img.setAttribute('height', size);
+
+  g.appendChild(img);
+  europe.appendChild(g);
+}
