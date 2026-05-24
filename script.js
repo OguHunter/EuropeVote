@@ -173,7 +173,7 @@ Spain: [
   { id:"upn",     name:"UPN",      color:"#E1252F", logo:"spain/es_UPN_logo.png",      group:"EPP",    econ: 1.0,  social: 1.7,  eu: 2.0 },
   { id:"podemos", name:"Podemos",  color:"#B767F4", logo:"spain/es_Podemos_logo.png",  group:"LEFT",   econ:-2.3,  social:-2.7,  eu:-0.8 },
   { id:"salf",    name:"SALF",     color:"#FFFFFF", logo:"spain/es_SALF_logo.png",    econ: 2.2,  social: 2.5,  eu:-2.0 },
-  { id:"volt", name:"VOLT",   color:"#502379", logo:"netherlands/nl_VOLT_logo.png",   group:"GREENS", econ: 0.4,  social:-1.5,  eu: 3.0, tier:"minor" }
+  { id:"volt", name:"Volt",   color:"#502379", logo:"netherlands/nl_Volt_logo.png",   group:"GREENS", econ: 0.4,  social:-1.5,  eu: 3.0, tier:"minor" }
 ],
 Ireland: [
   { id:"ff",     name:"FF",       color:"#01795D", logo:"ireland/ie_FF_logo.png",       group:"RENEW",  econ: 0.7,  social: 0.5,  eu: 2.2 },
